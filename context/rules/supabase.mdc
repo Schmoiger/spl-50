@@ -1,0 +1,65 @@
+---
+description: Supabase operations via MCP — migrations, queries, maintenance, and schema_migrations tracking
+globs: ["**/migrations/*.sql", "**/supabase/**", "**/database_service/**", "**/stores/**"]
+alwaysApply: false
+---
+
+# Supabase
+
+**Applies to**: All database operations against the Supabase project
+
+## Tools
+
+Always use the Supabase MCP tools. Never use the Supabase CLI (`supabase` commands) or assume Docker is running.
+
+| Action | Correct | Wrong |
+|--------|---------|-------|
+| Query | `mcp__supabase__execute_sql` | `supabase db query`, `psql` |
+| Migration | `mcp__supabase__apply_migration` + insert into `schema_migrations` | `supabase db push` |
+| Logs | `mcp__supabase__get_logs` | CLI |
+| Advisors | `mcp__supabase__get_advisors` | — |
+| VACUUM | `mcp__supabase__execute_sql` | asyncpg in app code |
+
+## Migrations
+
+After every `apply_migration`, insert an audit row:
+
+```sql
+INSERT INTO schema_migrations (migration_file, applied_at)
+VALUES ('<filename>.sql', now()) ON CONFLICT DO NOTHING;
+```
+
+`apply_migration` runs inside a transaction — `CONCURRENTLY` DDL will silently create an invalid index or error. Use plain forms in migration files; use `execute_sql` for concurrent operations on live tables:
+
+| | Migration file | `execute_sql` |
+|-|---------------|---------------|
+| Drop index | `DROP INDEX IF EXISTS idx` | `DROP INDEX CONCURRENTLY IF EXISTS idx` |
+| Create index | `CREATE INDEX idx ON ...` | `CREATE INDEX CONCURRENTLY idx ON ...` |
+
+## Autovacuum
+
+Default `scale_factor = 0.20` means vacuum triggers after 20% dead tuples — too late for large upsert-heavy tables. Tune per-table (Supabase blocks server-level GUC changes):
+
+```sql
+ALTER TABLE <table> SET (
+    autovacuum_vacuum_scale_factor = 0.01,
+    autovacuum_vacuum_threshold = 100,
+    autovacuum_analyze_scale_factor = 0.005
+);
+```
+
+Apply to any table > 1M rows with frequent upserts. Never add `VACUUM` to application code — run on demand via `execute_sql` after bulk loads only.
+
+**Timestamp bloat**: updating `fetched_at`/`computed_at` on every upsert creates dead tuples even when payload is unchanged. Only update timestamps when values actually change.
+
+## Gotchas
+
+**Replication slots**: stale slots (consumer gone, slot not dropped) silently accumulate WAL until disk fills. Check when diagnosing disk growth:
+
+```sql
+SELECT slot_name, active,
+  pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), restart_lsn)) AS wal_behind
+FROM pg_replication_slots;
+```
+
+**PostgREST**: all app queries run inside a transaction — VACUUM and `CONCURRENTLY` DDL require `execute_sql` or a direct connection.

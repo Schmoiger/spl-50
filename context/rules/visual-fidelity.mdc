@@ -1,0 +1,34 @@
+---
+description: UI implementation must reference design artefacts and meet quality bar
+globs: ["**/*.tsx", "**/*.css"]
+alwaysApply: false
+---
+
+# Visual Fidelity
+
+**Applies to**: All UI implementation work
+
+## Before Writing UI Code
+
+Read these design artefacts:
+
+1. `{project-root}/artefacts/design/design-system.md` (foundations §1, components §3 and §8, wireframes §7)
+2. `visual-standards.md` for hierarchy, spacing, responsive rules
+
+## Creative Latitude
+
+Wireframes are a starting point, not a pixel-perfect spec. Agents may improve on wireframes — better layouts, clearer hierarchy, improved interactions are encouraged. But the design intent (information hierarchy, user flow, component choices) must be preserved. Document deviations in the handoff with rationale.
+
+## During Implementation
+
+- Use design tokens (not hardcoded values)
+- Implement all states: empty, loading, error, populated
+- Test at breakpoints from visual-standards.md
+- If improving on the wireframe, document what changed and why in handoff
+
+## Forbidden
+
+- Building UI without reading design artefacts first
+- Skipping empty/loading/error states
+- Ignoring responsive breakpoints
+- Deviating from wireframe without documenting rationale

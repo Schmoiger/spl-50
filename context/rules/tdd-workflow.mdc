@@ -1,0 +1,90 @@
+---
+description: Strict Detroit-School Test-Driven Development (RED-GREEN-REFACTOR) cycle
+globs: ["**/tests/**", "**/*.test.py", "**/*.test.ts"]
+alwaysApply: false
+---
+
+# TDD Workflow & Constraints
+
+**Applies to**: All implementation tasks using Test-Driven Development.
+
+**Core Philosophy**: Tests MUST be "Intent-First" (Behavioural), not "Code-First" (Structural). You are verifying that the system satisfies the user's requirements, not documenting its internal wiring.
+
+## Phase 1: RED Phase (Write Tests)
+
+**Context Constraint:** During this phase, you are PROHIBITED from reading existing implementation files in `src/` (or equivalent). You may only read:
+1. The task specification / acceptance criteria.
+2. The API contract (openapi.yaml, api-endpoints.md, etc.).
+3. Type definitions and interfaces that do not yet have implementations.
+
+**Naming Convention:**
+- Test names MUST describe a behaviour, not a method or class. Use the `should` pattern: `test_<subject>_should_<behaviour>_when_<condition>`.
+- A test name that mirrors a private method, internal variable, or implementation class name is invalid — it is structural, not behavioural.
+- Examples:
+  - VALID: `test_sync_should_abort_when_delist_rate_exceeds_threshold`
+  - INVALID: `test_abort_sync` or `test_validate_delist_rate`
+
+**Test Structure:** Every test MUST follow Given-When-Then:
+
+```python
+def test_upper_band_should_equal_sma_plus_two_stddev_for_known_dataset():
+    # Given a known 20-day closing price series
+    prices = [...]
+
+    # When the Bollinger bands are calculated
+    result = calculate_bands(prices, period=20, std_dev=2)
+
+    # Then the upper band equals SMA + 2σ
+    assert result.upper == 22.45  # pre-computed from spec
+```
+
+**Rules for Writing Tests:**
+- **Intent-First:** Tests must describe behaviour as a caller observes it (inputs, outputs, side effects, error cases). If a test requires knowing the implementation's internal private methods or state to write, it is invalid.
+- **Pre-computed Expectations:** Expected values MUST be derived manually from the domain specification or acceptance criteria. NEVER compute expected values using the same algorithm/logic being implemented (e.g., if testing a Bollinger band, hardcode the expected `SMA ± 2σ` output based on a known static dataset, do not write code to calculate it in the test).
+- **Commit message:** `test(scope): description`
+- **Output:** Test files only. Zero implementation.
+
+**Verification (The "Watch it Fail" Check):**
+- Run the tests. They MUST fail.
+- **Crucial Rule:** If a test passes on the very first run *before* the GREEN phase begins, it was written against existing code. You MUST delete the test and rewrite it strictly from the acceptance criteria.
+- Confirm they fail for the right reason (missing implementation or assertion failure), not due to syntax errors or import errors. A `SyntaxError` or `ImportError` does not count as a behavioural failure.
+
+## Phase 2: GREEN Phase (Implement)
+
+- Write the *minimal* amount of code required to make the failing tests pass.
+- You are PROHIBITED from modifying the test files during this phase to make the tests pass.
+- **Commit message:** `feat(scope): description`
+- **Output:** Implementation files only.
+
+**Verification:**
+- Run the tests. Confirm they all pass.
+
+## Phase 3: REFACTOR Phase (Optional)
+
+- Improve code quality, readability, and performance.
+- You may modify implementation files. You may NOT modify or add new tests.
+- Adding new tests during REFACTOR couples the test suite to implementation details produced during refactoring — write those tests in a new RED phase instead.
+- **Verification:** Tests MUST still pass after every refactoring step.
+- **Commit message:** `refactor(scope): description`
+
+## Strict Testing Rules (Detroit-School)
+
+1. **Assert on Outcomes, Not Interactions:** You MUST assert against state, return values, or observable side effects.
+2. **Minimise Mocks:** You are PROHIBITED from using interaction-based assertions (e.g., `mock.assert_called_once_with(...)`) for internal business-logic collaborators. Use real objects.
+3. **Valid Mocking Boundaries:** You may ONLY use mocks at absolute I/O boundaries where using real objects is impossible or non-deterministic. These boundaries are strictly limited to:
+   - Network / HTTP calls
+   - Database queries
+   - Filesystem reads/writes
+   - System clock (time) / randomness
+
+## Forbidden Actions
+
+- Reading existing implementation files while writing RED phase tests.
+- Writing tests based on how the existing code behaves, rather than the acceptance criteria.
+- Test names that mirror method, class, or private implementation names (structural tests).
+- Modifying tests during the GREEN phase to achieve a passing state.
+- Adding new tests during the REFACTOR phase.
+- Skipping tests to achieve a green state.
+- Committing code while tests are failing in the GREEN phase.
+- Writing tests and implementation in the same pass and claiming RED was completed (the AI conflation anti-pattern).
+- Computing expected values in the test using the same algorithm being tested.

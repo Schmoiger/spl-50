@@ -1,0 +1,54 @@
+---
+description: Agent metrics self-reporting protocol
+alwaysApply: false
+globs: ["**/agents/**", "**/orchestrator*"]
+---
+
+# Metrics Logging
+
+## Log File
+
+Append to `metrics/session-log.jsonl`. One JSON object per line. Never overwrite.
+
+## When to Log
+
+| Event | Trigger |
+|-------|---------|
+| start | Receive task assignment |
+| handoff | Before passing to another agent |
+| escalate | Returning task to orchestrator |
+| complete | Task finished |
+| blocked | Cannot proceed |
+
+## Schema
+
+```json
+{
+  "ts": "ISO8601 timestamp",
+  "task": "task-id",
+  "agent": "agent-id",
+  "event": "start|handoff|escalate|complete|blocked",
+  "tokens": {
+    "in": 0,
+    "out": 0,
+    "source": "api_response|estimated|unavailable"
+  },
+  "to": "target-agent (for handoff/escalate)",
+  "notes": "optional context"
+}
+```
+
+## Token Sources
+
+| Source | When | Accuracy |
+|--------|------|----------|
+| api_response | Platform provides usage metadata | Exact |
+| estimated | Calculate as chars/4 | ~80% accurate |
+| unavailable | Platform doesn't expose, can't estimate | Log anyway |
+
+## Example
+
+```jsonl
+{"ts":"2025-01-28T09:00:00Z","task":"AUTH-001","agent":"auth-coder","event":"start","tokens":{"in":0,"out":0,"source":"unavailable"}}
+{"ts":"2025-01-28T09:45:00Z","task":"AUTH-001","agent":"auth-coder","event":"complete","tokens":{"in":2340,"out":1890,"source":"api_response"},"to":"auth-orchestrator"}
+```

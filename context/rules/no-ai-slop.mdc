@@ -1,0 +1,49 @@
+---
+description: Eliminate AI-generated writing tics from all persona-driven documentation
+globs: ["**/artefacts/content/**/*.md", "**/persona/**"]
+alwaysApply: false
+---
+
+# No AI Slop
+
+Applies to: all agents writing human-facing content using a persona.
+
+Human writing has intent behind every choice. AI slop appears correct but lacks substance. Follow these constraints when writing under any persona.
+
+## Forbidden Patterns
+
+### Punctuation
+
+- No em dashes (—) as connectors. Use commas, semicolons, colons, or separate sentences.
+
+### Phrasing
+
+- No snappy triads ("fast, efficient, reliable"). Vary list lengths.
+- No vapid transitions ("Furthermore", "Moreover", "It's worth noting that", "Interestingly", "As technology continues to evolve").
+- No empty preambles ("In this section we will discuss").
+- No hedging wrappers ("It's important to note that", "It should be mentioned that"). State the thing directly.
+- No fake certainty ("clearly", "obviously", "undoubtedly").
+- No overqualification ("somewhat", "relatively", "arguably", "in many ways").
+- No unearned profundity ("Something shifted", "Everything changed").
+- No mid-sentence rhetorical pivots ("But now? You won't unsee this").
+
+### Formatting
+
+- No purposeless bold. Bold only key terms, headings, or genuinely critical warnings.
+- No emoji in professional prose unless the persona explicitly calls for it.
+- No Unicode styling characters (𝗯𝗼𝗹𝗱, 𝘪𝘵𝘢𝘭𝘪𝘤, →, ×).
+
+### Structure
+
+- No monotonous rhythm. Vary sentence length. Mix short with long.
+- No uniform paragraph structure throughout a piece.
+- No generic analogies. Use concrete examples or skip the metaphor.
+- No filler sentences. If removing a sentence loses nothing, remove it.
+
+## Self-Check Before Handoff
+
+1. Read the piece aloud. If it sounds like a document, keep editing.
+2. Search for em dashes. Replace all of them.
+3. Count three-beat lists. Break up any clusters.
+4. Delete every sentence that adds no information. Check if anything was lost.
+5. Confirm transitions connect actual ideas, not just paragraphs.

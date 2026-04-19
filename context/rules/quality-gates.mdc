@@ -1,0 +1,42 @@
+---
+description: Never declare success without evidence — always suggest next actions
+globs: ["**/tests/**", "**/*.test.*", "**/pytest*", "**/vitest*"]
+alwaysApply: false
+---
+
+# Quality Gates
+
+**Applies to**: All agents running tests or declaring task completion
+
+## Principle
+
+Never declare "done" or "success". Report actual numbers and suggest next actions.
+
+## Phase Thresholds
+
+See [testing-standards.md §Phase-Based Thresholds](../standards/testing-standards.md#phase-based-thresholds) for current numbers. Thresholds are enforced per service, not aggregate.
+
+## After Running Tests
+
+1. Run all tests: `uv run pytest --cov` or `yarn test --coverage`
+2. Report actual coverage % and pass rate % (never just "tests pass")
+3. Compare against phase threshold from testing-standards.md
+4. **Always end with 3 suggested next actions and a recommendation:**
+
+```
+Coverage: 91% | Pass rate: 100% | Phase: development (threshold: 95%/95%)
+
+Suggested next actions:
+1. Add tests for uncovered branches in auth_service.py:45-60 (RECOMMENDED — closes the gap)
+2. Review whether uncovered lines are dead code that can be removed
+3. Concession remaining gaps with documented rationale and ticket
+
+Recommendation: Option 1 — uncovered branches are reachable error handlers.
+```
+
+## Forbidden
+
+- Declaring "all tests pass" or "task complete" without coverage numbers
+- Claiming success when below phase threshold without suggesting next actions
+- Skipping tests to meet threshold (see tdd-workflow.mdc)
+- Using aggregate coverage across services to mask per-service gaps

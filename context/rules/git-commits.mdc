@@ -1,0 +1,133 @@
+---
+description: Git commit message format, types, and Agent-Session metrics
+globs: []
+alwaysApply: true
+---
+
+# Git Commits
+
+**Applies to**: Orchestrator (commits on behalf of agents) and any direct human commits
+
+## Who Commits
+
+**Agents do not commit.** They lint their code, write a commit message to `/tmp/{task-id}_commit_msg.txt`, and report the file list + message path back to the orchestrator. The orchestrator formats, stages, and commits on their behalf — one at a time.
+
+## Commit Commands (Orchestrator Only)
+
+| Action | Correct | Wrong |
+|--------|---------|-------|
+| Multi-line commit | Write tool → `/tmp/msg.txt`, then `git add <files> && git commit -F /tmp/msg.txt` | `git commit -m "$(...)"`, `printf ... \| git commit -F -` |
+| Single-line commit | `git commit -m "type(scope): description"` | N/A |
+| Directory-specific | `git -C /abs/path <subcommand>` | `cd /path && git`, subshells |
+
+## Pre-Commit: Format Before Staging
+
+Pre-commit hooks auto-fix files (`ruff --fix`, `biome --write`). If you stage then commit, the hook rewrites files on disk after staging — the working tree diverges from the index and the commit may fail or produce confusing diffs. **Always format before staging:**
+
+1. `uv run --project /abs/path/to/service ruff format {files}` for Python
+2. `yarn --cwd /abs/path/to/project-root biome check --write {files}` for TypeScript
+3. Stage and commit — hooks now find nothing to change
+
+Do NOT re-apply edits after a hook "reverts" your changes. The hook formatted your code correctly — read the file, confirm the result, and commit the formatted version.
+
+## Message Format
+
+### Subject Line
+
+`{type}({scope}): {description}`
+
+| Type | Use For |
+|------|---------|
+| feat | New feature |
+| fix | Bug fix |
+| test | Adding/updating tests |
+| refactor | Code restructuring (no behaviour change) |
+| docs | Documentation only |
+| chore | Build, config, dependencies |
+| perf | Performance improvement |
+
+### Full Format (Agent Commits)
+
+```
+{type}({scope}): {description}
+
+{optional body}
+
+Tasks: {task-ids}
+Agent-Session: tool={tool} model={model} agents={list} duration={time}
+
+Co-Authored-By: Claude {Model} <{model}@anthropic.com>
+```
+
+### Agent-Session Fields
+
+| Field | Authored by | Format | Example |
+|-------|------------|--------|---------|
+| tool | Agent or orchestrator | IDE/platform that ran the model | tool=claude-code |
+| model | Agent or orchestrator | sonnet\|opus\|haiku | model=sonnet |
+| agents | Agent or orchestrator | comma-separated agent roles | agents=python-coder |
+| duration | Orchestrator | minutes or hours | duration=45m |
+| dispatch | Orchestrator | human\|orchestrator | dispatch=orchestrator |
+| interactions | Orchestrator | total human messages across orchestrator + subagent | interactions=0 |
+| approvals | Orchestrator | total tool/action approvals across orchestrator + subagent | approvals=2 |
+| tokens | prepare-commit-msg hook | in/out with K suffix (auto-injected) | tokens=12.4K/8.2K |
+
+`tokens=` is appended automatically by the `prepare-commit-msg` hook — never include it manually.
+
+## Orchestrator Commit Procedure
+
+When committing on behalf of an agent, the orchestrator SHALL verify the message file before committing:
+
+1. **Read** the agent's `/tmp/{task-id}_commit_msg.txt`
+2. **Check** for an `Agent-Session:` line
+3. **If missing**, append the trailer block before the Co-Authored-By line:
+   ```
+   Agent-Session: tool={tool} model={model} agents={agent-role} duration={time} dispatch={human|orchestrator} interactions={N} approvals={N}
+   ```
+   Use the actual tool, model, and agent role from the spawn. Estimate duration from session timing. `interactions` and `approvals` count the **total human cost** for the task — sum the orchestrator's own human touchpoints plus the subagent's.
+4. **Check** for a `Co-Authored-By:` line; append if missing
+5. **Format** source files (ruff/biome) before staging
+6. **Commit**: `git add {files} && git commit -F /tmp/{task-id}_commit_msg.txt`
+
+The orchestrator owns the commit — if the agent's message is incomplete, fix it rather than rejecting the task.
+
+## Examples
+
+### Agent Commit
+
+```
+feat(auth): add token refresh endpoint
+
+Tasks: AUTH-001
+Agent-Session: tool=claude-code model=sonnet agents=python-coder duration=32m dispatch=orchestrator interactions=0 approvals=2
+
+Co-Authored-By: Claude Sonnet <sonnet@anthropic.com>
+```
+
+The hook appends `tokens=8.2K/5.1K` to the Agent-Session line at commit time.
+
+### Human Commit
+
+```
+docs(api): update OpenAPI spec for backtest endpoint
+
+Tasks: DOC-001
+```
+
+## Pull Requests
+
+When creating a PR, the orchestrator SHALL use `context/templates/pr-description-template.md`. Compute the Agent Metrics section by parsing Agent-Session lines from all commits on the branch:
+
+```bash
+git log main..HEAD --format='%b' | grep '^Agent-Session:'
+```
+
+## Rules
+
+- Max 72 chars for subject line
+- Scope matches service/component name
+- Description is imperative ("add" not "added")
+- Tasks line references tasks.md
+- Agent commits require Agent-Session and Co-Authored-By
+
+Full template: `templates/commit-message-template.md`

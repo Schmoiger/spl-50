@@ -1,0 +1,88 @@
+# Pre-commit configuration template
+#
+# DEPLOYMENT
+# ----------
+# 1. Copy this file to the project root: cp context/scripts/pre-commit-config-template.yaml .pre-commit-config.yaml
+# 2. Install pre-commit: uv add --dev pre-commit
+# 3. Install hooks: uv run pre-commit install && uv run pre-commit install --hook-type commit-msg
+# 4. Run against all files (first time): uv run pre-commit run --all-files
+#
+# UPDATE HOOK VERSIONS
+# --------------------
+# Check for newer versions: uv run pre-commit autoupdate
+# Pin versions explicitly to prevent unexpected breakage across machines.
+
+repos:
+  # Python: Ruff (format + lint) and Pyright (type checking)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.1
+    hooks:
+      - id: ruff-check
+        name: Ruff (lint)
+        files: ^services/.*\.py$
+        args: [--fix]
+      - id: ruff-format
+        name: Ruff (format)
+        files: ^services/.*\.py$
+
+  # Pyright: run per-service (cd services/<name> && uv run pyright)
+  # - repo: https://github.com/RobertCraigie/pyright-python
+  #   rev: v1.1.408
+  #   hooks:
+  #     - id: pyright
+  #       name: Pyright (type check)
+  #       files: ^services/.*\.py$
+  #       exclude: ^services/.*/tests/.*\.py$
+  #       pass_filenames: false
+
+  # TypeScript linting and formatting
+  - repo: local
+    hooks:
+      - id: biome
+        name: Biome (TypeScript lint + format)
+        entry: yarn biome check --write
+        language: system
+        files: ^(frontend|packages)/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+
+  # Custom validation hooks
+  - repo: local
+    hooks:
+      - id: conventional-commits
+        name: Validate conventional commit message
+        entry: uv run python context/scripts/validators/conventional_commits.py
+        language: python
+        stages: [commit-msg]
+        always_run: true
+
+      - id: ears-notation
+        name: Validate EARS notation in requirements
+        entry: uv run python context/scripts/validators/ears_notation.py
+        language: python
+        files: ^artefacts/product/(requirements|user-stories)\.md$
+
+      - id: british-english
+        name: Validate British English spelling
+        entry: uv run python context/scripts/validators/british_english.py
+        language: python
+        files: ^(artefacts/|frontend/|services/|packages/).*\.md$
+        exclude: ^(node_modules|\.git|venv|\.venv)/
+
+
+
+      - id: framework-docs-staleness
+        name: Check framework docs updated with context/ changes
+        entry: uv run python context/scripts/validators/framework_docs_staleness.py
+        language: python
+        files: ^context/
+        pass_filenames: false
+
+      # AGENTS.md regeneration disabled - run manually when needed:
+      # uv run python context/scripts/generators/generate_agents_md.py
+      #
+      # - id: regenerate-agents-md
+      #   name: Regenerate AGENTS.md if context changed
+      #   entry: uv run python context/scripts/generators/generate_agents_md.py
+      #   language: python
+      #   files: ^context/(agents/|workflows/|README\.md)
+      #   pass_filenames: false

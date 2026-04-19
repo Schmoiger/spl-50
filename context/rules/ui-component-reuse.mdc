@@ -1,0 +1,34 @@
+---
+description: UI styling must use DaisyUI then Tailwind before any custom CSS
+globs: ["**/*.tsx", "**/*.css", "**/*.scss"]
+alwaysApply: false
+---
+
+# UI Component Reuse
+
+**Applies to**: All UI styling and component creation
+
+## Styling Priority (strict order)
+
+1. DaisyUI semantic classes (`btn`, `card`, `modal`, `alert`)
+2. Tailwind utility classes (`flex`, `p-4`, `text-lg`)
+3. Custom CSS — ONLY when neither DaisyUI nor Tailwind provides what's needed
+
+## Commands
+
+| Action | Correct | Wrong |
+|--------|---------|-------|
+| Button | `className="btn btn-primary"` | `style={{...}}` or custom `.my-button` |
+| Card | `className="card"` | custom `.custom-card` with `.css` file |
+| Layout | Tailwind `flex`, `grid`, `gap-4` | Custom CSS grid/flexbox |
+| Theming | DaisyUI theme + CSS custom properties | Hardcoded hex values |
+
+## Forbidden
+
+- Creating `.css`/`.scss` files for component styling without exhausting DaisyUI + Tailwind
+- Using `!important` or specificity hacks
+- Hardcoding colour values instead of semantic tokens
+
+## Why
+
+Custom CSS creates inconsistency, breaks theme switching, and duplicates what the design system already provides. DaisyUI + Tailwind cover 95%+ of UI needs.

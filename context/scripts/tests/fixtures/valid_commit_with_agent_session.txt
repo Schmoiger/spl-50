@@ -1,0 +1,4 @@
+feat(data-service): add yfinance integration
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+Agent-Session: tool=cursor model=sonnet agents=python-coder tokens=5.2K/3.1K duration=12m

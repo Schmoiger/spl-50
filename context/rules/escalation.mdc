@@ -1,0 +1,72 @@
+---
+description: Agents must escalate uncertainty and high-impact deferrals to the orchestrator
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Escalation
+
+**Applies to**: All agents facing uncertainty or ambiguity
+
+## Decision Matrix
+
+| Impact if Wrong | Confidence | Action |
+|-----------------|------------|--------|
+| Low | Any | Assume, document in handoff, proceed |
+| Medium | High | Assume, document in handoff, proceed |
+| Medium | Low | Assume, document, flag for review |
+| High | Any | **STOP. Escalate to orchestrator.** |
+
+## Escalation Path
+
+Subagent → Orchestrator → Human. Subagents always escalate to the orchestrator, never directly to the human.
+
+### Orchestrator Triage
+
+When the orchestrator receives an escalation, it decides whether to resolve or forward:
+
+| Situation | Action | Example |
+|-----------|--------|---------|
+| Single obvious remediation, no trade-offs | Resolve: create a task and dispatch | Add a TTL sweep to a growing table |
+| Implementation detail within agreed architecture | Resolve: decide and document | Choose between cron job vs lazy cleanup when architecture already specifies the service boundary |
+| Multiple viable approaches with different trade-offs | **Forward to human** | TTL sweep vs partitioned tables vs external scheduler — each has cost/complexity implications |
+| Scope, budget, or timeline implications | **Forward to human** | Remediation adds a new service dependency or delays the sprint |
+| Architectural or schema decision not covered by existing docs | **Forward to human** | New table, new API contract, new integration point |
+
+**Default**: if in doubt, forward to the human. The cost of an unnecessary question is low; the cost of an autonomous architectural decision the human would have made differently is high.
+
+## Impact Classification
+
+Not all deferrals are equal. Agents must distinguish scope deferrals from operational deferrals:
+
+| Deferral type | Impact | Action |
+|---------------|--------|--------|
+| Feature not yet needed | Low | Defer autonomously, document in handoff |
+| Maintenance with bounded cost (e.g. rename, refactor) | Low–Medium | Defer, add to todo.md |
+| Anything that accumulates unboundedly (data growth, log volume, queue depth) | **High** | **Escalate** |
+| Operational health (cleanup, retention, resource limits) | **High** | **Escalate** |
+| Infrastructure or schema change with production consequences | **High** | **Escalate** |
+
+**Rule of thumb**: if deferring means something grows without bound or degrades over time, it is high-impact regardless of how confident you are.
+
+## Escalate When
+
+- Requirements are ambiguous or contradictory
+- Architecture decision not covered by existing docs
+- Security implications unclear
+- Breaking change to existing API contract
+- Multiple valid approaches with significant trade-offs
+- Deferring work that has operational or data-growth consequences
+- Maintenance omission that accumulates technical debt in production infrastructure
+
+## How to Escalate
+
+Return to the orchestrator with: the question, impact assessment, options considered, and a recommendation. The orchestrator decides whether to resolve or escalate to the human.
+
+**Logging**: the orchestrator logs every escalation (whether resolved autonomously or forwarded) to `artefacts/build/agent-interruptions.md` using the Escalation format defined in `agent-standards.md` §4.6.
+
+## Forbidden
+
+- Guessing on high-impact decisions without escalating
+- Silently assuming without documenting the assumption
+- Blocking on low-impact unknowns (just document and proceed)

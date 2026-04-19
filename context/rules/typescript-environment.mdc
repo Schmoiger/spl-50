@@ -1,0 +1,35 @@
+---
+description: TypeScript/JavaScript environment setup and command execution
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/package.json"]
+alwaysApply: false
+---
+
+# TypeScript Environment
+
+**Applies to**: All TypeScript/JavaScript code execution
+
+## Commands
+
+| Action | Correct | Wrong |
+|--------|---------|-------|
+| Run tests | `yarn test` | `npm test` |
+| Install package | `yarn add package` | `npm install package` |
+| Install dev package | `yarn add -D package` | `npm install --save-dev package` |
+| Install all deps | `yarn install` | `npm install` |
+| Run script | `yarn scriptname` | `npm run scriptname` |
+| Execute binary | `yarn dlx package` | `npx package` |
+| Lint (from any directory) | `yarn --cwd {repo-root} run lint` | `yarn lint` (from subdirectory) |
+
+## Why
+
+This project uses Yarn workspaces for monorepo management. Using npm:
+- Breaks workspace dependency resolution
+- Creates conflicting lock files (`package-lock.json` vs `yarn.lock`)
+- May install wrong versions
+
+## Project Setup
+
+Each TypeScript project must have:
+- `package.json` with dependencies
+- Listed in root `package.json` workspaces array
+- Use `yarn.lock` (never `package-lock.json`)

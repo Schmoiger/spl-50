@@ -1,0 +1,38 @@
+---
+description: Output directory structure and file naming conventions
+globs: ["**/*.md", "**/*.py", "**/*.ts", "**/*.json"]
+alwaysApply: true
+---
+
+# Output Locations
+
+**Applies to**: All agent-generated files and artefacts
+
+## Directory Structure
+
+```
+{project-root}/
+├── artefacts/                    # All build outputs
+│   ├── architecture/             # Architecture docs, diagrams
+│   ├── build/                    # Tasks, reviews, implementation docs
+│   ├── product/                  # Requirements, user stories
+│   ├── test-results/             # Test output files
+│   └── design/                   # UI designs, wireframes
+├── secrets/                      # Credentials (gitignored)
+└── services/{name}/              # Service implementation
+    └── tests/                    # Service tests
+```
+
+## File Naming
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Test results | `v2-{task-id}-results.txt` | `v2-004-red-results.txt` |
+| Reviews | `{phase}-review.md` | `phase-2-3-tech-review.md` |
+| Implementation docs | `{TASK-ID}-IMPLEMENTATION.md` | `BUG-UI-030-IMPLEMENTATION.md` |
+
+## Why
+
+- Consistent structure across all projects
+- British English per project standards
+- Easy to find outputs by task ID

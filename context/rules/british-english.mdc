@@ -1,0 +1,21 @@
+---
+description: Use British English spelling and terminology
+globs: ["**/*.md", "**/*.py", "**/*.ts"]
+alwaysApply: true
+---
+
+# British English
+
+All documentation uses British English.
+
+| Use | Not |
+|-----|-----|
+| colour | color |
+| behaviour | behavior |
+| organise | organize |
+| recognise | recognize |
+| centre | center |
+| licence (n) | license |
+| artefacts | artefacts |
+
+Date format: DD/MM/YYYY

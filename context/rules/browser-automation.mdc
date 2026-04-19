@@ -1,0 +1,44 @@
+---
+description: Which browser automation tool to use depending on environment (Cursor vs terminal)
+alwaysApply: false
+---
+
+# Browser Automation
+
+**Applies to**: Any task requiring browser interaction, UI inspection, screenshot capture, or console error checking.
+
+## Tool Selection by Environment
+
+| Environment | Correct tool | Wrong |
+|-------------|-------------|-------|
+| Cursor IDE | `cursor-ide-browser` MCP tools directly (`browser_navigate`, `browser_snapshot`, `browser_console_messages`, etc.) | `browser-use` subagent (Task tool) |
+| Terminal (claude, claude-code, etc.) | `puppeteer-core` script (`puppeteer-core` is in `frontend/devDependencies`) | Installing full `puppeteer` package |
+| Formal E2E test phase (`@ui-tester` agent) | `chrome-devtools` MCP | Either of the above |
+
+## Rules
+
+- **Never use the `browser-use` subagent** (Task tool with `subagent_type: "browser-use"`). It installs the full `puppeteer` package into `frontend/package.json` and leaves screenshot/script artefacts behind.
+- **Never run `yarn add puppeteer`**. The project uses `puppeteer-core` (already installed). Use that.
+- When `cursor-ide-browser` MCP tools are available, call them directly — do not delegate to a subagent.
+- When writing a puppeteer script in terminal, use `puppeteer-core` and connect to an existing Chrome instance or launch via `executablePath`.
+
+## Example (terminal — puppeteer-core)
+
+```typescript
+import puppeteer from 'puppeteer-core';
+
+const browser = await puppeteer.launch({
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  headless: true,
+});
+const page = await browser.newPage();
+await page.goto('http://localhost:3000');
+const screenshot = await page.screenshot({ path: 'screenshot.png' });
+await browser.close();
+```
+
+Run with: `yarn dlx tsx script.ts` (never `npx`)
+
+## Why
+
+The `browser-use` subagent adds `puppeteer` to `devDependencies` on every run, pollutes `yarn.lock`, and leaves artefacts in the repo. `cursor-ide-browser` MCP and `puppeteer-core` give the same capability without side effects.

@@ -1,0 +1,51 @@
+---
+description: Python environment setup and command execution
+globs: ["**/*.py", "**/pyproject.toml", "**/requirements.txt"]
+alwaysApply: false
+---
+
+# Python Environment
+
+**Applies to**: All Python code execution
+
+## Commands
+
+| Action | Correct | Wrong |
+|--------|---------|-------|
+| Run script | `uv run python script.py` | `python script.py` |
+| Run module | `uv run python -m module` | `python -m module` |
+| Run tests | `uv run pytest` | `pytest` |
+| Install package | `uv add package` | `pip install package` |
+| Sync dependencies | `uv sync` | `pip install -r requirements.txt` |
+| Python REPL | `uv run python` | `python` or `python3` |
+| Run one-off tool | `uvx ruff check .` | `ruff check .` or `pipx run ruff` |
+| Run inline script | Write to `/tmp/script.py`, then `uv run --project /abs/path python /tmp/script.py` | `uv run python -c "..."` (multiline or with comments) |
+| Lint with ruff | `uv run --project /abs/path/to/service ruff check --fix file.py` | `uv run ruff check file.py`, `.venv/bin/ruff check file.py` |
+| Format with ruff | `uv run --project /abs/path/to/service ruff format file.py` | `uv run ruff format file.py`, `.venv/bin/ruff format file.py` |
+
+## Why
+
+`uv run ruff` without `--project` resolves the project from the current working
+directory. If ruff is not in that directory's dev dependencies, or the agent's
+working directory differs from the service root, the spawn fails. Always pass
+`--project /abs/path/to/service` so the correct environment is used regardless
+of working directory.
+
+For banned bash patterns including multiline `python -c`, see `bash-environment.mdc`.
+
+Bare `python` or `pytest` commands fail because:
+- No virtual environment is activated
+- Dependencies aren't available
+- Wrong Python version may be used
+
+`uv run` automatically:
+- Uses the project's virtual environment
+- Ensures dependencies are installed
+- Respects `.python-version`
+
+## Project Setup
+
+Each Python project must have:
+- `pyproject.toml` with dependencies
+- `.python-version` specifying Python version
+- Virtual environment managed by `uv`

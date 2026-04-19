@@ -1,0 +1,63 @@
+---
+description: Type annotation and safety requirements
+globs: ["**/*.py", "**/*.ts", "**/*.tsx"]
+alwaysApply: false
+---
+
+# Type Safety
+
+**Applies to**: All Python and TypeScript code
+
+## Python
+
+All functions MUST have type hints:
+
+```python
+# Correct
+def process_data(user_id: str, data: dict[str, Any]) -> Optional[Result]:
+    pass
+
+# Wrong - missing type hints
+def process_data(user_id, data):
+    pass
+```
+
+### Required Annotations
+
+- Function parameters
+- Return types
+- Class attributes
+- Module-level variables (when not obvious)
+
+### Type Checking
+
+Projects use `mypy` or `pyright` for static analysis.
+
+## TypeScript
+
+Strict mode MUST be enabled:
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
+  }
+}
+```
+
+### Forbidden
+
+- `any` type (use `unknown` if type is truly unknown)
+- `// @ts-ignore` without documented reason
+- Disabling strict checks
+
+## Why
+
+Type safety:
+- Catches errors at compile time
+- Enables IDE autocomplete
+- Documents expected data shapes
+- Makes refactoring safer

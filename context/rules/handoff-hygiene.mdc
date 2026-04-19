@@ -1,0 +1,36 @@
+---
+description: Handoff documents and tracking files must be maintained and archived
+globs: ["**/HANDOFF.md", "**/bugs.md", "**/tasks.md", "**/todo.md"]
+alwaysApply: false
+---
+
+# Handoff Hygiene
+
+**Applies to**: All agents completing tasks
+
+## Handoff Locations
+
+| Type | Correct Location | Wrong Location |
+|------|------------------|----------------|
+| Service handoff | `{service}/HANDOFF.md` | Root HANDOFF.md, artefacts/ |
+| Cross-service | `/artefacts/shared/handoffs/` | Service directories |
+| Integration status | `/artefacts/shared/handoffs/integration-status.md` | Scattered files |
+
+## After Every Task Completion
+
+Update these files (use Write/Edit tools):
+
+- `{service}/artefacts/tasks.md` — mark task done, update status
+- `{service}/artefacts/bugs.md` — log new bugs found, close resolved ones
+- `{service}/artefacts/todo.md` — add tech debt discovered
+- `{service}/HANDOFF.md` — append handoff entry for next agent
+
+## Archive
+
+When a phase completes, move old HANDOFF.md entries to `artefacts/build/archive/`. Never delete — archive with timestamp.
+
+## Forbidden
+
+- Completing a task without updating tasks.md
+- Creating HANDOFF.md in wrong directory
+- Leaving stale handoff entries in active HANDOFF.md after phase completion

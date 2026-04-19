@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bats:*)",
+      "Bash(claude mcp:*)",
+      "Bash(diff:*)",
+      "Bash(du:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git revert:*)",
+      "Bash(git show:*)",
+      "Bash(ls:*)",
+      "Bash(rsync:*)",
+      "Bash(test:*)",
+      "Bash(tree:*)",
+      "Bash(uv add:*)",
+      "Bash(uv run:*)",
+      "Bash(uv sync:*)",
+      "Bash(wc:*)",
+      "Bash(xargs:*)"
+    ]
+  }
+}
