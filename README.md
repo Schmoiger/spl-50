@@ -1,87 +1,54 @@
-# Start Here
+# Word Art Generator
 
-Portable multi-agent development context for AI-assisted software engineering.
+A premium web application that transforms Markdown text into stunning landscape word art with hidden calligram overlays. 
 
----
+This project allows you to create dense, visually striking text compositions where a specific word or sentence is "hidden" within a larger body of text using contrasting colors.
 
-## Quick Deployment
+## ✨ Features
 
-### 1. Copy to Your Project
+- **Markdown Support**: Automatically parses bold and italic formatting while stripping away whitespace and newlines for a continuous "sea of text" look.
+- **Dynamic Font Scaling**: An intelligent algorithm calculates the optimal font size to perfectly fill the landscape canvas, regardless of the amount of input text.
+- **Customizable Calligrams**: Overlay a custom word or sentence that is revealed through a sophisticated color contrast.
+- **Full Color Control**: Independently configure the colors for the background, the base text, and the calligram overlay.
+- **Premium UI**: Built with a modern, responsive interface using DaisyUI and TailwindCSS.
+- **High-Quality Export**: Download your creations as PNG images directly from your browser.
 
-```bash
-# Copy context directory and orchestration guide
-cp -r context/ /path/to/your-project/context/
-cp CLAUDE.md /path/to/your-project/CLAUDE.md
-cp AGENTS.md /path/to/your-project/AGENTS.md
-```
+## 🚀 Getting Started
 
-### 2. Configure MCP (Optional)
+### Prerequisites
 
-```bash
-# Claude Code CLI
-cp context/mcp/mcp.json ~/.claude/mcp.json
+- [Node.js](https://nodejs.org/) (v18+)
+- [Yarn](https://yarnpkg.com/) (Berry/v4)
 
-# Claude Desktop
-# macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
-# Windows: %APPDATA%\Claude\claude_desktop_config.json
-# Linux: ~/.config/Claude/claude_desktop_config.json
+### Installation
 
-# Cursor IDE
-cp context/mcp/mcp.json /path/to/your-project/.mcp.json
-```
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
 
-### 3. Generate CLAUDE.md
+### Running Locally
 
-```bash
-cd /path/to/your-project
-uv run python context/scripts/generators/generate_claude_md.py
-```
-
-### 4. Create Artefacts Structure
+To start the development server for the Word Art Generator:
 
 ```bash
-mkdir -p artefacts/{product,architecture,design,build,test-results,shared}
-mkdir -p artefacts/shared/{handoffs,fixtures,mocks}
+yarn workspace word-art-generator dev
 ```
 
----
+The app will be available at `http://localhost:5173`.
 
-## Documentation
+## 🛠️ Tech Stack
 
-- **Getting started**: See `context/README.md` - Complete guide for agents and humans
-- **Workflow guide**: See `CLAUDE.md` / `AGENTS.md` - Auto-generated orchestration guide
-- **Agent reference**: See `context/agents/` - Individual agent definitions
-- **Standards**: See `context/standards/` - Coding, testing, tech stack guidance
-- **Workflows**: See `context/workflows/` - Default (TDD) and prototype patterns
+- **Framework**: [React](https://react.dev/) with [Vite](https://vitejs.dev/)
+- **Styling**: [TailwindCSS](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
+- **Canvas Rendering**: HTML5 Canvas API
+- **Markdown Parsing**: [Marked](https://marked.js.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Testing**: [Vitest](https://vitest.dev/)
 
----
+## 📂 Project Structure
 
-## Framework Compatibility
-
-This context system works with multiple AI frameworks beyond Claude Code.
-
-**Native support**: Claude Code (CLI), Claude Desktop
-**Adaptable to**: LangGraph, CrewAI, AutoGen, Cursor, Aider, Continue, Windsurf
-
-See `context/docs/agentic-framework-reference.md` (Portability and Framework Adapters) for integration guides showing how to load agent definitions, map tools, and adapt workflows for each framework.
-
----
-
-## Support
-
-- **Issues**: https://github.com/Schmoiger/start-here/issues
-- **Full documentation**: `context/README.md`
-- **Framework reference**: `context/docs/agentic-framework-reference.md`
-- **Customization**: See `context/README.md` for adding agents, rules, validators
-
----
-
-## What's Included
-
-- **18 specialized agents** - Discovery, design, development, review, testing, deployment
-- **14 standards** - Coding, testing, tech stack, documentation, workflows
-- **18 rules** - Enforceable constraints with validators
-- **9 workflows** in `context/workflows/` - Including build (TDD), design, prototype, content (blogs and papers with personas), deploy, bugfix, full-test, continuous-improvement, retrospective
-- **12 templates** - Handoffs, reviews, artefacts
-
-**Total**: ~66 context files for structured, high-quality multi-agent workflows.
+- `frontend/word-art-generator/`: The main React application.
+- `context/`: Project standards and orchestration context.
+- `sample.md`: A sample markdown file provided for testing the generator.

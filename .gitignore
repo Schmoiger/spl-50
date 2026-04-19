@@ -212,3 +212,25 @@ __marimo__/
 # MCP config (contains API keys)
 context/mcp/mcp.json
 bollinger-context
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Yarn Berry
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# Build artifacts
+dist/
+dist-ssr/
+*.local
+

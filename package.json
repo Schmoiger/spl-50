@@ -1,0 +1,8 @@
+{
+  "name": "spl-50",
+  "private": true,
+  "packageManager": "yarn@4.14.1",
+  "workspaces": [
+    "frontend/*"
+  ]
+}
