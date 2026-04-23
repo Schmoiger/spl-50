@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
-import { parseMarkdown } from '../utils/markdownParser';
+import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { parseMarkdown, type TextSegment } from '../utils/markdownParser';
 
 interface WordArtCanvasProps {
   markdownText: string;
@@ -26,6 +26,88 @@ const PADDING = 50; // Safety margin on all sides
 const FONT_FAMILY = 'Inter, -apple-system, sans-serif';
 const CALLIGRAM_FONT_FAMILY = 'Inter, -apple-system, sans-serif';
 
+
+interface RenderChar {
+  char: string;
+  weight: string;
+  style: string;
+  width: number;
+  paragraphIndex: number;
+}
+
+interface RenderWord {
+  chars: RenderChar[];
+  width: number;
+  isSpace: boolean;
+}
+
+interface RenderLine {
+  words: RenderWord[];
+  extraSpace: number;
+}
+
+function createBaseWords(segments: TextSegment[], measureCtx: CanvasRenderingContext2D): RenderWord[] {
+  const SCALE_FOR_MEASURING = 100;
+  const baseWords: RenderWord[] = [];
+  let tempChars: RenderChar[] = [];
+  let tempWidth = 0;
+
+  for (const seg of segments) {
+    const weight = seg.bold ? 'bold' : 'normal';
+    const style = seg.italic ? 'italic' : 'normal';
+    measureCtx.font = `${style} ${weight} ${SCALE_FOR_MEASURING}px ${FONT_FAMILY}`;
+    
+    for (const char of seg.text) {
+      const width = measureCtx.measureText(char).width / SCALE_FOR_MEASURING;
+      const charInfo = { char, weight, style, width, paragraphIndex: seg.paragraphIndex };
+
+      if (char === ' ') {
+        if (tempChars.length > 0) {
+          baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
+          tempChars = [];
+          tempWidth = 0;
+        }
+        baseWords.push({ chars: [charInfo], width, isSpace: true });
+      } else {
+        tempChars.push(charInfo);
+        tempWidth += width;
+      }
+    }
+  }
+  if (tempChars.length > 0) {
+    baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
+  }
+  return baseWords;
+}
+
+function calculateLayout(baseWords: RenderWord[], fSize: number, safeWidth: number): { lines: RenderLine[], totalHeight: number } {
+  const lines: RenderLine[] = [];
+  let currentLine: RenderWord[] = [];
+  let currentLineWidth = 0;
+
+  for (const word of baseWords) {
+    const wordWidth = word.width * fSize;
+    if (currentLineWidth + wordWidth > safeWidth && currentLine.length > 0) {
+      const lineToPush = [...currentLine];
+      let lineWidthToPush = currentLineWidth;
+      const lastWord = lineToPush.at(-1);
+      if (lastWord && lastWord.isSpace) {
+        lineToPush.pop();
+        lineWidthToPush -= lastWord.width * fSize;
+      }
+      lines.push({ words: lineToPush, extraSpace: safeWidth - lineWidthToPush });
+      currentLine = [];
+      currentLineWidth = 0;
+      if (word.isSpace) continue;
+    }
+    currentLine.push(word);
+    currentLineWidth += wordWidth;
+  }
+  if (currentLine.length > 0) {
+    lines.push({ words: currentLine, extraSpace: 0 });
+  }
+  return { lines, totalHeight: lines.length * (fSize * LINE_SPACING) };
+}
 
 export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
   ({ markdownText, orientation, useTextMask, useImageMask, textPosition, calligramText, maskImage, maskThreshold = 128, maskInvert = false, bgColor, textColor, textColor2, calligramColor }, ref) => {
@@ -70,7 +152,9 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         const baseSize = 100;
         let totalBaseWidth = 0;
         
-        const measureCtx = document.createElement('canvas').getContext('2d')!;
+        const measureCtx = document.createElement('canvas').getContext('2d');
+        if (!measureCtx) return;
+
         for (const seg of segments) {
           const weight = seg.bold ? 'bold' : 'normal';
           const style = seg.italic ? 'italic' : 'normal';
@@ -83,92 +167,15 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         let fontSize = Math.sqrt((SAFE_WIDTH * SAFE_HEIGHT) / (widthAt1px * LINE_SPACING));
         
         // 5. Layout and Draw text
-        interface RenderChar {
-          char: string;
-          weight: string;
-          style: string;
-          width: number;
-          paragraphIndex: number;
-        }
-
-        interface RenderWord {
-          chars: RenderChar[];
-          width: number;
-          isSpace: boolean;
-        }
-
-        interface RenderLine {
-          words: RenderWord[];
-          extraSpace: number;
-        }
-        
-        const scaleForMeasuring = 100;
-        const baseWords: RenderWord[] = [];
-        let tempChars: RenderChar[] = [];
-        let tempWidth = 0;
-
-        for (const seg of segments) {
-          const weight = seg.bold ? 'bold' : 'normal';
-          const style = seg.italic ? 'italic' : 'normal';
-          measureCtx.font = `${style} ${weight} ${scaleForMeasuring}px ${FONT_FAMILY}`;
-          
-          for (let i = 0; i < seg.text.length; i++) {
-            const char = seg.text[i];
-            const width = measureCtx.measureText(char).width / scaleForMeasuring;
-            const charInfo = { char, weight, style, width, paragraphIndex: seg.paragraphIndex };
-
-            if (char === ' ') {
-              if (tempChars.length > 0) {
-                baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
-                tempChars = [];
-                tempWidth = 0;
-              }
-              baseWords.push({ chars: [charInfo], width, isSpace: true });
-            } else {
-              tempChars.push(charInfo);
-              tempWidth += width;
-            }
-          }
-        }
-        if (tempChars.length > 0) {
-          baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
-        }
-
-        const simulateLayout = (fSize: number) => {
-          const lines: RenderLine[] = [];
-          let currentLine: RenderWord[] = [];
-          let currentLineWidth = 0;
-
-          for (const word of baseWords) {
-            const wordWidth = word.width * fSize;
-            if (currentLineWidth + wordWidth > SAFE_WIDTH && currentLine.length > 0) {
-              const lineToPush = [...currentLine];
-              let lineWidthToPush = currentLineWidth;
-              if (lineToPush[lineToPush.length - 1].isSpace) {
-                const last = lineToPush.pop()!;
-                lineWidthToPush -= last.width * fSize;
-              }
-              lines.push({ words: lineToPush, extraSpace: SAFE_WIDTH - lineWidthToPush });
-              currentLine = [];
-              currentLineWidth = 0;
-              if (word.isSpace) continue;
-            }
-            currentLine.push(word);
-            currentLineWidth += wordWidth;
-          }
-          if (currentLine.length > 0) {
-            lines.push({ words: currentLine, extraSpace: 0 });
-          }
-          return { lines, totalHeight: lines.length * (fSize * LINE_SPACING) };
-        };
+        const baseWords = createBaseWords(segments, measureCtx);
 
         let minFS = fontSize * 0.5;
-        let maxFS = fontSize * 2.0;
+        let maxFS = fontSize * 2;
         let finalLines: RenderLine[] = [];
         
         for (let i = 0; i < 15; i++) { // Increase iterations for better precision
           const midFS = (minFS + maxFS) / 2;
-          const { lines, totalHeight } = simulateLayout(midFS);
+          const { lines, totalHeight } = calculateLayout(baseWords, midFS, SAFE_WIDTH);
           if (totalHeight > SAFE_HEIGHT * 0.95) {
             maxFS = midFS;
           } else {
