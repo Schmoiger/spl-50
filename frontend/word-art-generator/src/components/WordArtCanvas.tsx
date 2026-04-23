@@ -46,36 +46,40 @@ interface RenderLine {
   extraSpace: number;
 }
 
-function createBaseWords(segments: TextSegment[], measureCtx: CanvasRenderingContext2D): RenderWord[] {
+function processSegment(seg: TextSegment, measureCtx: CanvasRenderingContext2D, baseWords: RenderWord[], tempState: { chars: RenderChar[], width: number }) {
   const SCALE_FOR_MEASURING = 100;
-  const baseWords: RenderWord[] = [];
-  let tempChars: RenderChar[] = [];
-  let tempWidth = 0;
+  const weight = seg.bold ? 'bold' : 'normal';
+  const style = seg.italic ? 'italic' : 'normal';
+  measureCtx.font = `${style} ${weight} ${SCALE_FOR_MEASURING}px ${FONT_FAMILY}`;
+  
+  for (const char of seg.text) {
+    const width = measureCtx.measureText(char).width / SCALE_FOR_MEASURING;
+    const charInfo = { char, weight, style, width, paragraphIndex: seg.paragraphIndex };
 
-  for (const seg of segments) {
-    const weight = seg.bold ? 'bold' : 'normal';
-    const style = seg.italic ? 'italic' : 'normal';
-    measureCtx.font = `${style} ${weight} ${SCALE_FOR_MEASURING}px ${FONT_FAMILY}`;
-    
-    for (const char of seg.text) {
-      const width = measureCtx.measureText(char).width / SCALE_FOR_MEASURING;
-      const charInfo = { char, weight, style, width, paragraphIndex: seg.paragraphIndex };
-
-      if (char === ' ') {
-        if (tempChars.length > 0) {
-          baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
-          tempChars = [];
-          tempWidth = 0;
-        }
-        baseWords.push({ chars: [charInfo], width, isSpace: true });
-      } else {
-        tempChars.push(charInfo);
-        tempWidth += width;
+    if (char === ' ') {
+      if (tempState.chars.length > 0) {
+        baseWords.push({ chars: tempState.chars, width: tempState.width, isSpace: false });
+        tempState.chars = [];
+        tempState.width = 0;
       }
+      baseWords.push({ chars: [charInfo], width, isSpace: true });
+    } else {
+      tempState.chars.push(charInfo);
+      tempState.width += width;
     }
   }
-  if (tempChars.length > 0) {
-    baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
+}
+
+function createBaseWords(segments: TextSegment[], measureCtx: CanvasRenderingContext2D): RenderWord[] {
+  const baseWords: RenderWord[] = [];
+  const tempState = { chars: [] as RenderChar[], width: 0 };
+
+  for (const seg of segments) {
+    processSegment(seg, measureCtx, baseWords, tempState);
+  }
+  
+  if (tempState.chars.length > 0) {
+    baseWords.push({ chars: tempState.chars, width: tempState.width, isSpace: false });
   }
   return baseWords;
 }
@@ -91,7 +95,7 @@ function calculateLayout(baseWords: RenderWord[], fSize: number, safeWidth: numb
       const lineToPush = [...currentLine];
       let lineWidthToPush = currentLineWidth;
       const lastWord = lineToPush.at(-1);
-      if (lastWord && lastWord.isSpace) {
+      if (lastWord?.isSpace) {
         lineToPush.pop();
         lineWidthToPush -= lastWord.width * fSize;
       }
@@ -107,6 +111,61 @@ function calculateLayout(baseWords: RenderWord[], fSize: number, safeWidth: numb
     lines.push({ words: currentLine, extraSpace: 0 });
   }
   return { lines, totalHeight: lines.length * (fSize * LINE_SPACING) };
+}
+
+interface RenderConfig {
+  canvasWidth: number;
+  canvasHeight: number;
+  padding: number;
+  lineSpacing: number;
+  textColor: string;
+  textColor2: string;
+  calligramColor: string;
+}
+
+function renderLayout(
+  ctx: CanvasRenderingContext2D, 
+  finalLines: RenderLine[], 
+  fontSize: number, 
+  maskData: ImageData | null,
+  config: RenderConfig
+) {
+  let drawY = config.padding + fontSize;
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'left';
+  
+  for (const line of finalLines) {
+    if (drawY - fontSize > config.canvasHeight - config.padding) break;
+    
+    let drawX = config.padding;
+    const spaceCount = line.words.filter(w => w.isSpace).length;
+    const isLastLine = line.extraSpace === 0;
+    const extraSpacePerGap = (!isLastLine && spaceCount > 0) ? line.extraSpace / spaceCount : 0;
+    
+    for (const word of line.words) {
+      for (const charInfo of word.chars) {
+        const charWidth = charInfo.width * fontSize;
+        ctx.font = `${charInfo.style} ${charInfo.weight} ${fontSize}px ${FONT_FAMILY}`;
+        
+        let color = charInfo.paragraphIndex % 2 === 0 ? config.textColor : config.textColor2;
+        if (maskData) {
+          const sampleX = Math.floor(Math.min(Math.max(drawX + charWidth / 2, 0), config.canvasWidth - 1));
+          const sampleY = Math.floor(Math.min(Math.max(drawY - fontSize / 2, 0), config.canvasHeight - 1));
+          const index = (sampleY * config.canvasWidth + sampleX) * 4;
+          if (maskData.data[index] > 128) color = config.calligramColor;
+        }
+        
+        ctx.fillStyle = color;
+        ctx.fillText(charInfo.char, drawX, drawY);
+        drawX += charWidth;
+      }
+      if (word.isSpace) {
+        drawX += extraSpacePerGap;
+      }
+    }
+    
+    drawY += fontSize * config.lineSpacing;
+  }
 }
 
 export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
@@ -186,48 +245,15 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         }
 
         // Final drawing loop
-        let drawY = PADDING + fontSize;
-        ctx.textBaseline = 'bottom';
-        ctx.textAlign = 'left';
-        
-        for (const line of finalLines) {
-          if (drawY - fontSize > CANVAS_HEIGHT - PADDING) break;
-          
-          let drawX = PADDING;
-          const spaceWords = line.words.filter(w => w.isSpace);
-          const spaceCount = spaceWords.length;
-          
-          // Determine if this is the last line (extraSpace is 0). If so, do not justify.
-          const isLastLine = line.extraSpace === 0;
-          const extraSpacePerGap = (!isLastLine && spaceCount > 0) ? line.extraSpace / spaceCount : 0;
-          
-          for (const word of line.words) {
-            for (const charInfo of word.chars) {
-              const charWidth = charInfo.width * fontSize;
-              ctx.font = `${charInfo.style} ${charInfo.weight} ${fontSize}px ${FONT_FAMILY}`;
-              
-              let color = charInfo.paragraphIndex % 2 === 0 ? textColor : textColor2;
-              if (maskData) {
-                const sampleX = Math.floor(Math.min(Math.max(drawX + charWidth / 2, 0), CANVAS_WIDTH - 1));
-                const sampleY = Math.floor(Math.min(Math.max(drawY - fontSize / 2, 0), CANVAS_HEIGHT - 1));
-                const index = (sampleY * CANVAS_WIDTH + sampleX) * 4;
-                const inMask = maskData.data[index] > 128;
-                if (inMask) color = calligramColor;
-              }
-              
-              ctx.fillStyle = color;
-              ctx.fillText(charInfo.char, drawX, drawY);
-              drawX += charWidth;
-            }
-            if (word.isSpace) {
-              // The natural width of the space was already added by the inner loop.
-              // We only need to add the justification gap.
-              drawX += extraSpacePerGap;
-            }
-          }
-          
-          drawY += fontSize * LINE_SPACING;
-        }
+        renderLayout(ctx, finalLines, fontSize, maskData, {
+          canvasWidth: CANVAS_WIDTH,
+          canvasHeight: CANVAS_HEIGHT,
+          padding: PADDING,
+          lineSpacing: LINE_SPACING,
+          textColor,
+          textColor2,
+          calligramColor
+        });
       };
 
       // 6. Create calligram mask
