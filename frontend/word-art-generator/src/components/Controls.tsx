@@ -28,6 +28,7 @@ interface ControlsProps {
   calligramColor: string;
   setCalligramColor: (color: string) => void;
   onExport: () => void;
+  markdownText: string;
 }
 
 export function Controls({
@@ -57,6 +58,7 @@ export function Controls({
   calligramColor,
   setCalligramColor,
   onExport,
+  markdownText,
 }: ControlsProps) {
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -104,7 +106,7 @@ export function Controls({
               g = Math.round(g / count);
               b = Math.round(b / count);
               
-              setBgColor(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
+              // setBgColor(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
             }
           };
           img.src = dataUrl;
@@ -182,15 +184,23 @@ export function Controls({
       <div className="form-control w-full">
         <label className="label">
           <span className="label-text font-semibold flex items-center gap-2">
-            <Upload size={18} /> Upload Markdown
+            <Upload size={18} /> Content
           </span>
         </label>
-        <input
-          type="file"
-          accept=".md,.txt"
-          onChange={handleFileUpload}
-          className="file-input file-input-bordered file-input-primary w-full"
-        />
+        <div className="flex flex-col gap-2">
+          <input
+            type="file"
+            accept=".md,.txt"
+            onChange={handleFileUpload}
+            className="file-input file-input-bordered file-input-primary file-input-sm w-full"
+          />
+          <textarea
+            value={typeof markdownText === 'string' ? markdownText : ''}
+            onChange={(e) => onMarkdownUpload(e.target.value)}
+            className="textarea textarea-bordered h-32 w-full text-xs font-mono"
+            placeholder="Or paste your markdown here..."
+          />
+        </div>
       </div>
 
       <div className="form-control w-full">

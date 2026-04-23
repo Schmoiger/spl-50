@@ -24,7 +24,7 @@ export interface WordArtCanvasRef {
 const LINE_SPACING = 1.1; // Line height multiplier
 const FONT_FAMILY = 'Inter, -apple-system, sans-serif';
 const CALLIGRAM_FONT_FAMILY = 'Inter, -apple-system, sans-serif';
-const BASE_COLOR = '#8e9e9a'; // Comforting grey (sea foam hint)
+const BASE_COLOR = '#91b8a5'; // Sea foam
 const CALLIGRAM_COLOR = '#7e22ce'; // Sophisticated purple
 
 export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
@@ -53,7 +53,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
       if (!ctx) return;
 
       // 1. Clear background
-      ctx.fillStyle = bgColor || '#ffffff';
+      ctx.fillStyle = bgColor || '#fdfcf0';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       if (!markdownText) return;
@@ -65,7 +65,6 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
       // 3. Helper to draw text once mask is ready
       const drawWithMask = (maskData: ImageData | null) => {
         // 4. Calculate font size
-        // Measure total width at a base font size
         const baseSize = 100;
         let totalBaseWidth = 0;
         
@@ -78,13 +77,9 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         }
         
         const widthAt1px = totalBaseWidth / baseSize;
+        let fontSize = Math.sqrt((CANVAS_WIDTH * CANVAS_HEIGHT) / (widthAt1px * LINE_SPACING));
         
-        // We need: (widthAt1px * fontSize / CANVAS_WIDTH) * (fontSize * LINE_SPACING) = CANVAS_HEIGHT
-        // fontSize^2 = (CANVAS_WIDTH * CANVAS_HEIGHT) / (widthAt1px * LINE_SPACING)
-        // Use 0.95 multiplier for safety margin
-        let fontSize = Math.sqrt((CANVAS_WIDTH * CANVAS_HEIGHT) / (widthAt1px * LINE_SPACING)) * 0.95;
-        
-        // 5. Draw text
+        // 5. Layout and Draw text
         interface RenderChar {
           char: string;
           weight: string;
@@ -92,78 +87,126 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           width: number;
           paragraphIndex: number;
         }
+
+        interface RenderWord {
+          chars: RenderChar[];
+          width: number;
+          isSpace: boolean;
+        }
         
-        const allChars: RenderChar[] = [];
-        
+        // Pre-measure characters and group into words at a 1px base
+        // This avoids repeated ctx.measureText calls in the loop
+        const scaleForMeasuring = 100;
+        const baseWords: { chars: any[], width: number, isSpace: boolean }[] = [];
+        let tempChars: any[] = [];
+        let tempWidth = 0;
+
         for (const seg of segments) {
           const weight = seg.bold ? 'bold' : 'normal';
           const style = seg.italic ? 'italic' : 'normal';
-          ctx.font = `${style} ${weight} ${fontSize}px ${FONT_FAMILY}`;
+          measureCtx.font = `${style} ${weight} ${scaleForMeasuring}px ${FONT_FAMILY}`;
           
           for (let i = 0; i < seg.text.length; i++) {
             const char = seg.text[i];
-            const width = ctx.measureText(char).width;
-            allChars.push({ char, weight, style, width, paragraphIndex: seg.paragraphIndex });
-          }
-        }
+            const width = measureCtx.measureText(char).width / scaleForMeasuring;
+            const charInfo = { char, weight, style, width, paragraphIndex: seg.paragraphIndex };
 
-        let currentLine: RenderChar[] = [];
-        let currentLineWidth = 0;
-        const lines: { chars: RenderChar[], extraSpace: number }[] = [];
-
-        for (const charInfo of allChars) {
-          if (currentLineWidth + charInfo.width > CANVAS_WIDTH && currentLine.length > 0) {
-            lines.push({ chars: currentLine, extraSpace: CANVAS_WIDTH - currentLineWidth });
-            currentLine = [];
-            currentLineWidth = 0;
-            // Skip leading space on a new line for cleaner wrapping
-            if (charInfo.char === ' ') {
-              continue;
+            if (char === ' ') {
+              if (tempChars.length > 0) {
+                baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
+                tempChars = [];
+                tempWidth = 0;
+              }
+              baseWords.push({ chars: [charInfo], width, isSpace: true });
+            } else {
+              tempChars.push(charInfo);
+              tempWidth += width;
             }
-            currentLine.push(charInfo);
-            currentLineWidth += charInfo.width;
-          } else {
-            currentLine.push(charInfo);
-            currentLineWidth += charInfo.width;
           }
         }
-        if (currentLine.length > 0) {
-          // Last line is not justified
-          lines.push({ chars: currentLine, extraSpace: 0 });
+        if (tempChars.length > 0) {
+          baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
+        }
+
+        // Helper to simulate layout at a given font size
+        const simulateLayout = (fSize: number) => {
+          let lines: { words: any[], extraSpace: number }[] = [];
+          let currentLine: any[] = [];
+          let currentLineWidth = 0;
+
+          for (const word of baseWords) {
+            const wordWidth = word.width * fSize;
+            if (currentLineWidth + wordWidth > CANVAS_WIDTH && currentLine.length > 0) {
+              let lineToPush = [...currentLine];
+              let lineWidthToPush = currentLineWidth;
+              if (lineToPush[lineToPush.length - 1].isSpace) {
+                const last = lineToPush.pop()!;
+                lineWidthToPush -= last.width * fSize;
+              }
+              lines.push({ words: lineToPush, extraSpace: CANVAS_WIDTH - lineWidthToPush });
+              currentLine = [];
+              currentLineWidth = 0;
+              if (word.isSpace) continue;
+            }
+            currentLine.push(word);
+            currentLineWidth += wordWidth;
+          }
+          if (currentLine.length > 0) {
+            lines.push({ words: currentLine, extraSpace: 0 });
+          }
+          return { lines, totalHeight: lines.length * (fSize * LINE_SPACING) };
+        };
+
+        // Iteratively find the best font size (binary search or simple adjustment)
+        // We want totalHeight to be close to CANVAS_HEIGHT (e.g., 98%)
+        let minFS = fontSize * 0.5;
+        let maxFS = fontSize * 2.0;
+        let finalLines: any[] = [];
+        
+        for (let i = 0; i < 10; i++) {
+          const midFS = (minFS + maxFS) / 2;
+          const { lines, totalHeight } = simulateLayout(midFS);
+          if (totalHeight > CANVAS_HEIGHT * 0.98) {
+            maxFS = midFS;
+          } else {
+            minFS = midFS;
+          }
+          fontSize = midFS;
+          finalLines = lines;
         }
 
         let y = fontSize;
         ctx.textBaseline = 'bottom';
         
-        for (const line of lines) {
+        for (const line of finalLines) {
           if (y - fontSize > CANVAS_HEIGHT) break;
           
           let x = 0;
-          const spacing = line.chars.length > 1 ? line.extraSpace / (line.chars.length - 1) : 0;
+          const spaceWords = line.words.filter(w => w.isSpace);
+          const spaceCount = spaceWords.length;
+          const extraSpacePerGap = (line.extraSpace > 0 && spaceCount > 0) ? line.extraSpace / spaceCount : 0;
           
-          for (const charInfo of line.chars) {
-            ctx.font = `${charInfo.style} ${charInfo.weight} ${fontSize}px ${FONT_FAMILY}`;
-            
-            let color = charInfo.paragraphIndex % 2 === 0 ? textColor : textColor2;
-            if (maskData) {
-              // Sample the center of the character
-              const sampleX = Math.floor(Math.min(Math.max(x + charInfo.width / 2, 0), CANVAS_WIDTH - 1));
-              const sampleY = Math.floor(Math.min(Math.max(y - fontSize / 2, 0), CANVAS_HEIGHT - 1));
-              const index = (sampleY * CANVAS_WIDTH + sampleX) * 4;
+          for (const word of line.words) {
+            for (const charInfo of word.chars) {
+              const charWidth = charInfo.width * fontSize;
+              ctx.font = `${charInfo.style} ${charInfo.weight} ${fontSize}px ${FONT_FAMILY}`;
               
-              // The mask is pre-processed into pure black & white.
-              // We just check if the pixel is white (red channel > 128).
-              const inMask = maskData.data[index] > 128;
-                
-              if (inMask) {
-                color = calligramColor;
+              let color = charInfo.paragraphIndex % 2 === 0 ? textColor : textColor2;
+              if (maskData) {
+                const sampleX = Math.floor(Math.min(Math.max(x + charWidth / 2, 0), CANVAS_WIDTH - 1));
+                const sampleY = Math.floor(Math.min(Math.max(y - fontSize / 2, 0), CANVAS_HEIGHT - 1));
+                const index = (sampleY * CANVAS_WIDTH + sampleX) * 4;
+                const inMask = maskData.data[index] > 128;
+                if (inMask) color = calligramColor;
               }
+              
+              ctx.fillStyle = color;
+              ctx.fillText(charInfo.char, x, y);
+              x += charWidth;
             }
-            
-            ctx.fillStyle = color;
-            ctx.fillText(charInfo.char, x, y);
-            
-            x += charInfo.width + spacing;
+            if (word.isSpace) {
+              x += (word.width * fontSize) + extraSpacePerGap;
+            }
           }
           
           y += fontSize * LINE_SPACING;
