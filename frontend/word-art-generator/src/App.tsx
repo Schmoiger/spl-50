@@ -69,9 +69,9 @@ Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to hav
   const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
   const [useTextMask, setUseTextMask] = useState<boolean>(true);
   const [useImageMask, setUseImageMask] = useState<boolean>(true);
-  const [textPosition, setTextPosition] = useState<'center' | 'above' | 'below'>('center');
   
-  const [calligramText, setCalligramText] = useState<string>('ART');
+  const [calligramTextAbove, setCalligramTextAbove] = useState<string>('ART');
+  const [calligramTextBelow, setCalligramTextBelow] = useState<string>('');
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [maskThreshold, setMaskThreshold] = useState<number>(128);
   const [maskInvert, setMaskInvert] = useState<boolean>(false);
@@ -106,10 +106,10 @@ Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to hav
             setUseTextMask={setUseTextMask}
             useImageMask={useImageMask}
             setUseImageMask={setUseImageMask}
-            textPosition={textPosition}
-            setTextPosition={setTextPosition}
-            calligramText={calligramText}
-            setCalligramText={setCalligramText}
+            calligramTextAbove={calligramTextAbove}
+            setCalligramTextAbove={setCalligramTextAbove}
+            calligramTextBelow={calligramTextBelow}
+            setCalligramTextBelow={setCalligramTextBelow}
             maskImage={maskImage}
             setMaskImage={setMaskImage}
             maskThreshold={maskThreshold}
@@ -136,8 +136,8 @@ Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to hav
             orientation={orientation}
             useTextMask={useTextMask}
             useImageMask={useImageMask}
-            textPosition={textPosition}
-            calligramText={calligramText}
+            calligramTextAbove={calligramTextAbove}
+            calligramTextBelow={calligramTextBelow}
             maskImage={maskImage}
             maskThreshold={maskThreshold}
             maskInvert={maskInvert}

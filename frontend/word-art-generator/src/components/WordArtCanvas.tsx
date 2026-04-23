@@ -6,8 +6,8 @@ interface WordArtCanvasProps {
   orientation: 'landscape' | 'portrait';
   useTextMask: boolean;
   useImageMask: boolean;
-  textPosition: 'center' | 'above' | 'below';
-  calligramText: string;
+  calligramTextAbove: string;
+  calligramTextBelow: string;
   maskImage: string | null;
   maskThreshold?: number;
   maskInvert?: boolean;
@@ -188,7 +188,7 @@ function renderLayout(
 }
 
 export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
-  ({ markdownText, orientation, useTextMask, useImageMask, textPosition, calligramText, maskImage, maskThreshold = 128, maskInvert = false, bgColor, textColor, textColor2, calligramColor }, ref) => {
+  ({ markdownText, orientation, useTextMask, useImageMask, calligramTextAbove, calligramTextBelow, maskImage, maskThreshold = 128, maskInvert = false, bgColor, textColor, textColor2, calligramColor }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     
     const CANVAS_WIDTH = orientation === 'landscape' ? 1200 : 800;
@@ -286,30 +286,45 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         return;
       }
 
+      const hasAboveText = useTextMask && calligramTextAbove.trim() !== '';
+      const hasBelowText = useTextMask && calligramTextBelow.trim() !== '';
+
       const drawTextOnMask = () => {
-        if (useTextMask && calligramText) {
+        if (!useTextMask) {
+          const maskData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          drawWithMask(maskData);
+          return;
+        }
+
+        const drawCenteredText = (text: string, yPos: number, maxH: number) => {
           maskCtx.fillStyle = 'white';
           maskCtx.textAlign = 'center';
           maskCtx.textBaseline = 'middle';
           let cSize = 500;
-          let maxHeight = CANVAS_HEIGHT * 0.9;
-          if (useImageMask && maskImage && textPosition !== 'center') {
-            maxHeight = CANVAS_HEIGHT * 0.12; // 60% of the 20% reserved space
-          }
-          
           maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
-          while ((maskCtx.measureText(calligramText).width > CANVAS_WIDTH * 0.9 || cSize > maxHeight) && cSize > 5) {
+          while ((maskCtx.measureText(text).width > CANVAS_WIDTH * 0.9 || cSize > maxH) && cSize > 5) {
             cSize -= 5;
             maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
           }
-          
-          let y = CANVAS_HEIGHT / 2;
-          if (useImageMask && maskImage && textPosition !== 'center') {
-            if (textPosition === 'above') y = CANVAS_HEIGHT * 0.1;
-            if (textPosition === 'below') y = CANVAS_HEIGHT * 0.9;
-          }
-          
-          maskCtx.fillText(calligramText, CANVAS_WIDTH / 2, y);
+          maskCtx.fillText(text, CANVAS_WIDTH / 2, yPos);
+        };
+
+        const yAbove = CANVAS_HEIGHT * 0.1;
+        const yBelow = CANVAS_HEIGHT * 0.9;
+        const maxTextHeight = CANVAS_HEIGHT * 0.12;
+        
+        if (!useImageMask || !maskImage) {
+           if (hasAboveText && !hasBelowText) {
+             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9);
+           } else if (!hasAboveText && hasBelowText) {
+             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9);
+           } else if (hasAboveText && hasBelowText) {
+             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT * 0.25, CANVAS_HEIGHT * 0.4);
+             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT * 0.75, CANVAS_HEIGHT * 0.4);
+           }
+        } else {
+           if (hasAboveText) drawCenteredText(calligramTextAbove, yAbove, maxTextHeight);
+           if (hasBelowText) drawCenteredText(calligramTextBelow, yBelow, maxTextHeight);
         }
         
         const maskData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -324,9 +339,15 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           let availableHeight = CANVAS_HEIGHT;
           let imageYOffset = 0;
           
-          if (useTextMask && calligramText && textPosition !== 'center') {
+          if (hasAboveText && hasBelowText) {
+            availableHeight = CANVAS_HEIGHT * 0.6; // leaves 20% top, 20% bottom
+            imageYOffset = CANVAS_HEIGHT * 0.2;
+          } else if (hasAboveText) {
             availableHeight = CANVAS_HEIGHT * 0.8;
-            if (textPosition === 'above') imageYOffset = CANVAS_HEIGHT * 0.2;
+            imageYOffset = CANVAS_HEIGHT * 0.2;
+          } else if (hasBelowText) {
+            availableHeight = CANVAS_HEIGHT * 0.8;
+            imageYOffset = 0;
           }
 
           const scale = Math.min(CANVAS_WIDTH / img.width, availableHeight / img.height) * 0.9;
@@ -367,7 +388,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         drawTextOnMask();
       }
 
-    }, [markdownText, orientation, useTextMask, useImageMask, textPosition, calligramText, maskImage, maskThreshold, maskInvert, bgColor, textColor, textColor2, calligramColor, CANVAS_HEIGHT, CANVAS_WIDTH, SAFE_HEIGHT, SAFE_WIDTH]);
+    }, [markdownText, orientation, useTextMask, useImageMask, calligramTextAbove, calligramTextBelow, maskImage, maskThreshold, maskInvert, bgColor, textColor, textColor2, calligramColor, CANVAS_HEIGHT, CANVAS_WIDTH, SAFE_HEIGHT, SAFE_WIDTH]);
 
     return (
       <div className="w-full flex justify-center bg-base-200 p-4 rounded-xl shadow-inner overflow-hidden">

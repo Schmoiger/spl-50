@@ -9,10 +9,10 @@ interface ControlsProps {
   setUseTextMask: (val: boolean) => void;
   useImageMask: boolean;
   setUseImageMask: (val: boolean) => void;
-  textPosition: 'center' | 'above' | 'below';
-  setTextPosition: (val: 'center' | 'above' | 'below') => void;
-  calligramText: string;
-  setCalligramText: (text: string) => void;
+  calligramTextAbove: string;
+  setCalligramTextAbove: (text: string) => void;
+  calligramTextBelow: string;
+  setCalligramTextBelow: (text: string) => void;
   maskImage: string | null;
   setMaskImage: (image: string | null) => void;
   maskThreshold: number;
@@ -39,10 +39,10 @@ export function Controls({
   setUseTextMask,
   useImageMask,
   setUseImageMask,
-  textPosition,
-  setTextPosition,
-  calligramText,
-  setCalligramText,
+  calligramTextAbove,
+  setCalligramTextAbove,
+  calligramTextBelow,
+  setCalligramTextBelow,
   maskImage,
   setMaskImage,
   maskThreshold,
@@ -231,23 +231,6 @@ export function Controls({
         </div>
       </div>
 
-      {useTextMask && useImageMask && (
-        <div className="form-control w-full">
-          <label className="label">
-            <span className="label-text font-semibold text-xs">Text Position</span>
-          </label>
-          <select 
-            value={textPosition}
-            onChange={(e) => setTextPosition(e.target.value as 'center' | 'above' | 'below')}
-            className="select select-bordered select-sm w-full"
-          >
-            <option value="center">Overlap Center</option>
-            <option value="above">Above Image</option>
-            <option value="below">Below Image</option>
-          </select>
-        </div>
-      )}
-
       {useTextMask && (
         <div className="form-control w-full">
           <label className="label">
@@ -255,13 +238,22 @@ export function Controls({
               <Type size={18} /> Calligram Text
             </span>
           </label>
-          <input
-            type="text"
-            value={calligramText}
-            onChange={(e) => setCalligramText(e.target.value)}
-            placeholder="e.g. HELLO"
-            className="input input-bordered w-full"
-          />
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              value={calligramTextAbove}
+              onChange={(e) => setCalligramTextAbove(e.target.value)}
+              placeholder="Text Above Image (optional)"
+              className="input input-bordered w-full"
+            />
+            <input
+              type="text"
+              value={calligramTextBelow}
+              onChange={(e) => setCalligramTextBelow(e.target.value)}
+              placeholder="Text Below Image (optional)"
+              className="input input-bordered w-full"
+            />
+          </div>
         </div>
       )}
 
