@@ -57,6 +57,11 @@ Do you remember?: Rob, Pete and crew secretly pushed a bag of chips through Lee 
 Where do I start with the memories Suzie? The hours we spent reading and reenacting tips from The Spy’s Guidebook and Detectives Handbook. Forming a series of different clubs during our time at infants school: Garfield Club, Worm Club and Morph Club to name a few. Our bid for musical success with the Three Wise Monkeys and entrepreneurial forays with the Rainbows End shop. Trips to the Isle of Wight and sailing camp and two barge trips. We’ve been friends for about 48 years now and here’s to many many more. Hope you have a fabulous 50th birthday and although we can’t be there, we will raise a glass to you. x
 _Rebecca, Paul, Heidi & Layla_
 
+Suzie: fastest with a book, slowest with a skidoo. Love _Phil_
+
+Lots of wonderful memories of Susspa and her dad on our boat Avalon. Sailing to the IOW with Suzie at the helm or tying up the boat. Happy Days!! Have a super birthday Suzie much
+Love as always, hope to see you soon. xxx _Trish_
+
 A Roman who lacked some civility, Philosophised with great humility, He said: “What the hell, I’m just turning L, It’s 50 more years to C-nility." _Avi_
 
 Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to have you as my mother. You are the most special, amazing, inspiring person. You have taught me so much and always been there for me literally since before I was born. I am so so grateful for you and all you have done and continue to do for me and Priya. Thank you for being the best role model and inspiration as a person. I cannot believe you are 50 - you look the same as you did in my baby pictures! I hope to age as gracefully as you, and be as active as you, and as hardworking as you, when I am older. I love you more than I can say. xxxx _Isha_

@@ -166,7 +166,8 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         for (let i = 0; i < 10; i++) {
           const midFS = (minFS + maxFS) / 2;
           const { lines, totalHeight } = simulateLayout(midFS);
-          if (totalHeight > CANVAS_HEIGHT * 0.98) {
+          // Target 95% of height to allow for descenders and safety margin
+          if (totalHeight > CANVAS_HEIGHT * 0.95) {
             maxFS = midFS;
           } else {
             minFS = midFS;
