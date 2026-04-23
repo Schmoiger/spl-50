@@ -162,16 +162,16 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         let maxFS = fontSize * 2.0;
         let finalLines: any[] = [];
         
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 15; i++) { // Increase iterations for better precision
           const midFS = (minFS + maxFS) / 2;
           const { lines, totalHeight } = simulateLayout(midFS);
           if (totalHeight > SAFE_HEIGHT * 0.95) {
             maxFS = midFS;
           } else {
             minFS = midFS;
+            fontSize = midFS;
+            finalLines = lines;
           }
-          fontSize = midFS;
-          finalLines = lines;
         }
 
         // Final drawing loop
@@ -182,23 +182,13 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         for (const line of finalLines) {
           if (y - fontSize > CANVAS_HEIGHT - PADDING) break;
           
-          // Calculate the actual width of the line with current justification
-          let actualLineWidth = 0;
+          let x = PADDING;
           const spaceWords = line.words.filter(w => w.isSpace);
           const spaceCount = spaceWords.length;
-          const extraSpacePerGap = (line.extraSpace > 1 && spaceCount > 0) ? (line.extraSpace - 1) / spaceCount : 0;
           
-          for (let i = 0; i < line.words.length; i++) {
-            const word = line.words[i];
-            actualLineWidth += word.width * fontSize;
-            if (word.isSpace) {
-              actualLineWidth += extraSpacePerGap;
-            }
-          }
-
-          // Center the justified line within the SAFE_WIDTH for perfect symmetry
-          const centeringOffset = (SAFE_WIDTH - actualLineWidth) / 2;
-          let x = PADDING + centeringOffset;
+          // Determine if this is the last line (extraSpace is 0). If so, do not justify.
+          const isLastLine = line.extraSpace === 0;
+          const extraSpacePerGap = (!isLastLine && spaceCount > 0) ? line.extraSpace / spaceCount : 0;
           
           for (const word of line.words) {
             for (const charInfo of word.chars) {
@@ -219,7 +209,9 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
               x += charWidth;
             }
             if (word.isSpace) {
-              x += (word.width * fontSize) + extraSpacePerGap;
+              // The natural width of the space was already added by the inner loop.
+              // We only need to add the justification gap.
+              x += extraSpacePerGap;
             }
           }
           
