@@ -291,10 +291,14 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           maskCtx.fillStyle = 'white';
           maskCtx.textAlign = 'center';
           maskCtx.textBaseline = 'middle';
-          
           let cSize = 500;
+          let maxHeight = CANVAS_HEIGHT * 0.9;
+          if (useImageMask && maskImage && textPosition !== 'center') {
+            maxHeight = CANVAS_HEIGHT * 0.18; // 90% of the 20% reserved space
+          }
+          
           maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
-          while (maskCtx.measureText(calligramText).width > CANVAS_WIDTH * 0.9 && cSize > 50) {
+          while ((maskCtx.measureText(calligramText).width > CANVAS_WIDTH * 0.9 || cSize > maxHeight) && cSize > 20) {
             cSize -= 10;
             maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
           }

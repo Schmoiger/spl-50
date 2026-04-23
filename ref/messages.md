@@ -40,6 +40,8 @@ A white aunt in a Bengali scene, Suzie slipped in – effortless,unseen. Oxford 
 
 Happy birthday Suze. Carry on ignoring your age - you will always be 21 in my eyes (if only because it allows me to keep up the same illusion!). _Steve Parker_
 
+Dear Suzie, happy 50th rotation around the sun! Spending time with you is always lovely, never dull. Your Christmas parties are brilliant - all the best parties are spent in the kitchen! Randomly spending the day together at Legoland - we were more excited than the children! Do you remember about 25 years ago when we wandered around Nonsuch Park in circles looking for the perfect tree lined spot to paint?! Oh and that time we broke down in Putney after going to see Tori Amos?!… Feels like only yesterday! You are a truly wonderful person, Suzie. Kind, creative and inspiring. Your daughters are so lucky that you were the gift they received as a Mum. We wish you a wonderful 50th year filled with health, happiness, love and laughter. Lots of love _Ella, Matt, Stanley and Jack_
+
 Suzie you have had a wonderful first 50 years - Oxford, a great career, two girls that adore you, cats that ignore you and a husband who forgets his shoes. Here's to the next 50 years! _Workman family_
 
 Cheers for those lockdown gins and popcorn on the terrace, while the world stood still. One of the better survival strategies! _Erika & Chris_
