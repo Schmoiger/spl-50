@@ -312,8 +312,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         drawWithMask(maskData);
       };
 
-      maskCtx.fillStyle = 'black';
-      maskCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      maskCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       if (useImageMask && maskImage) {
         const img = new Image();
