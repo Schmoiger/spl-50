@@ -123,6 +123,42 @@ interface RenderConfig {
   calligramColor: string;
 }
 
+function renderLine(
+  ctx: CanvasRenderingContext2D,
+  line: RenderLine,
+  drawY: number,
+  fontSize: number,
+  maskData: ImageData | null,
+  config: RenderConfig
+) {
+  let drawX = config.padding;
+  const spaceCount = line.words.filter(w => w.isSpace).length;
+  const isLastLine = line.extraSpace === 0;
+  const extraSpacePerGap = (!isLastLine && spaceCount > 0) ? line.extraSpace / spaceCount : 0;
+  
+  for (const word of line.words) {
+    for (const charInfo of word.chars) {
+      const charWidth = charInfo.width * fontSize;
+      ctx.font = `${charInfo.style} ${charInfo.weight} ${fontSize}px ${FONT_FAMILY}`;
+      
+      let color = charInfo.paragraphIndex % 2 === 0 ? config.textColor : config.textColor2;
+      if (maskData) {
+        const sampleX = Math.floor(Math.min(Math.max(drawX + charWidth / 2, 0), config.canvasWidth - 1));
+        const sampleY = Math.floor(Math.min(Math.max(drawY - fontSize / 2, 0), config.canvasHeight - 1));
+        const index = (sampleY * config.canvasWidth + sampleX) * 4;
+        if (maskData.data[index] > 128) color = config.calligramColor;
+      }
+      
+      ctx.fillStyle = color;
+      ctx.fillText(charInfo.char, drawX, drawY);
+      drawX += charWidth;
+    }
+    if (word.isSpace) {
+      drawX += extraSpacePerGap;
+    }
+  }
+}
+
 function renderLayout(
   ctx: CanvasRenderingContext2D, 
   finalLines: RenderLine[], 
@@ -136,34 +172,7 @@ function renderLayout(
   
   for (const line of finalLines) {
     if (drawY - fontSize > config.canvasHeight - config.padding) break;
-    
-    let drawX = config.padding;
-    const spaceCount = line.words.filter(w => w.isSpace).length;
-    const isLastLine = line.extraSpace === 0;
-    const extraSpacePerGap = (!isLastLine && spaceCount > 0) ? line.extraSpace / spaceCount : 0;
-    
-    for (const word of line.words) {
-      for (const charInfo of word.chars) {
-        const charWidth = charInfo.width * fontSize;
-        ctx.font = `${charInfo.style} ${charInfo.weight} ${fontSize}px ${FONT_FAMILY}`;
-        
-        let color = charInfo.paragraphIndex % 2 === 0 ? config.textColor : config.textColor2;
-        if (maskData) {
-          const sampleX = Math.floor(Math.min(Math.max(drawX + charWidth / 2, 0), config.canvasWidth - 1));
-          const sampleY = Math.floor(Math.min(Math.max(drawY - fontSize / 2, 0), config.canvasHeight - 1));
-          const index = (sampleY * config.canvasWidth + sampleX) * 4;
-          if (maskData.data[index] > 128) color = config.calligramColor;
-        }
-        
-        ctx.fillStyle = color;
-        ctx.fillText(charInfo.char, drawX, drawY);
-        drawX += charWidth;
-      }
-      if (word.isSpace) {
-        drawX += extraSpacePerGap;
-      }
-    }
-    
+    renderLine(ctx, line, drawY, fontSize, maskData, config);
     drawY += fontSize * config.lineSpacing;
   }
 }
