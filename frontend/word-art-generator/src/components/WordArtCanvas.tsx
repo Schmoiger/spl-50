@@ -296,10 +296,10 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           return;
         }
 
-        const drawCenteredText = (text: string, yPos: number, maxH: number) => {
+        const drawCenteredText = (text: string, yPos: number, maxH: number, baseline: CanvasTextBaseline = 'middle') => {
           maskCtx.fillStyle = 'white';
           maskCtx.textAlign = 'center';
-          maskCtx.textBaseline = 'middle';
+          maskCtx.textBaseline = baseline;
           let cSize = 500;
           maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
           while ((maskCtx.measureText(text).width > CANVAS_WIDTH * 0.9 || cSize > maxH) && cSize > 5) {
@@ -309,22 +309,22 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           maskCtx.fillText(text, CANVAS_WIDTH / 2, yPos);
         };
 
-        const yAbove = CANVAS_HEIGHT * 0.1;
-        const yBelow = CANVAS_HEIGHT * 0.9;
+        const yAbove = CANVAS_HEIGHT * 0.05; // 5% padding from top
+        const yBelow = CANVAS_HEIGHT * 0.95; // 5% padding from bottom
         const maxTextHeight = CANVAS_HEIGHT * 0.12;
         
         if (!useImageMask || !maskImage) {
            if (hasAboveText && !hasBelowText) {
-             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9);
+             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9, 'middle');
            } else if (!hasAboveText && hasBelowText) {
-             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9);
+             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9, 'middle');
            } else if (hasAboveText && hasBelowText) {
-             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT * 0.25, CANVAS_HEIGHT * 0.4);
-             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT * 0.75, CANVAS_HEIGHT * 0.4);
+             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT * 0.25, CANVAS_HEIGHT * 0.4, 'middle');
+             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT * 0.75, CANVAS_HEIGHT * 0.4, 'middle');
            }
         } else {
-           if (hasAboveText) drawCenteredText(calligramTextAbove, yAbove, maxTextHeight);
-           if (hasBelowText) drawCenteredText(calligramTextBelow, yBelow, maxTextHeight);
+           if (hasAboveText) drawCenteredText(calligramTextAbove, yAbove, maxTextHeight, 'top');
+           if (hasBelowText) drawCenteredText(calligramTextBelow, yBelow, maxTextHeight, 'bottom');
         }
         
         const maskData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
