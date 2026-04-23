@@ -123,6 +123,25 @@ interface RenderConfig {
   calligramColor: string;
 }
 
+function getCharColor(
+  charInfo: RenderChar,
+  drawX: number,
+  drawY: number,
+  charWidth: number,
+  fontSize: number,
+  maskData: ImageData | null,
+  config: RenderConfig
+): string {
+  const baseColor = charInfo.paragraphIndex % 2 === 0 ? config.textColor : config.textColor2;
+  if (!maskData) return baseColor;
+
+  const sampleX = Math.floor(Math.min(Math.max(drawX + charWidth / 2, 0), config.canvasWidth - 1));
+  const sampleY = Math.floor(Math.min(Math.max(drawY - fontSize / 2, 0), config.canvasHeight - 1));
+  const index = (sampleY * config.canvasWidth + sampleX) * 4;
+  
+  return maskData.data[index] > 128 ? config.calligramColor : baseColor;
+}
+
 function renderLine(
   ctx: CanvasRenderingContext2D,
   line: RenderLine,
@@ -140,16 +159,7 @@ function renderLine(
     for (const charInfo of word.chars) {
       const charWidth = charInfo.width * fontSize;
       ctx.font = `${charInfo.style} ${charInfo.weight} ${fontSize}px ${FONT_FAMILY}`;
-      
-      let color = charInfo.paragraphIndex % 2 === 0 ? config.textColor : config.textColor2;
-      if (maskData) {
-        const sampleX = Math.floor(Math.min(Math.max(drawX + charWidth / 2, 0), config.canvasWidth - 1));
-        const sampleY = Math.floor(Math.min(Math.max(drawY - fontSize / 2, 0), config.canvasHeight - 1));
-        const index = (sampleY * config.canvasWidth + sampleX) * 4;
-        if (maskData.data[index] > 128) color = config.calligramColor;
-      }
-      
-      ctx.fillStyle = color;
+      ctx.fillStyle = getCharColor(charInfo, drawX, drawY, charWidth, fontSize, maskData, config);
       ctx.fillText(charInfo.char, drawX, drawY);
       drawX += charWidth;
     }
