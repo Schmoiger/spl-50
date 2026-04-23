@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Controls } from './components/Controls';
 import { WordArtCanvas, type WordArtCanvasRef } from './components/WordArtCanvas';
 
@@ -7,7 +7,7 @@ function App() {
 
 Huge congratulations on your big birthday from all the Ferdinando family. We have loved all the holidays, parties, BBQ’s, shows, walks and celebrations over the years while watching the families grow. We’ve lost count of the decades we’ve been friends and are so looking forward to many more. You hold such a special place in our hearts. They say the true judge of person is what they do when no-one is watching, I think you can add to that measure “who your children turn out to be”. You have nurtured 2 fabulous daughters, it has been a privilege to watch that happen. But the biggest THANK YOU I have to save for the day you married Avi and removed the responsibility from me for organising his world (sorry about the shoes on the wedding day!) best man duties done though and handed over to you. You’ve done such a better job than I did before you walked in to his life. Hope you have a wonderful birthday, lots of love the Ferdinando’s. Raise a glass to past memories, present friends and future adventures (sailing trips without mopeds?). _Ferdinando family_
 
-We need to thank Sarah and Isha for bringing us together as since our first encounter we\'ve had a ball!!! We\'ve made gin, karaoke\'d, run through Paris, played darts, and laughed a lot. Happy 50th and here\'s to many many more amazing fun memories. Love xx _Lisa & Darren_
+We need to thank Sarah and Isha for bringing us together as since our first encounter we've had a ball!!! We've made gin, karaoke'd, run through Paris, played darts, and laughed a lot. Happy 50th and here's to many many more amazing fun memories. Love xx _Lisa & Darren_
 
 Happy Happy Birthday, thank you for always being a happy, positive, full of beans friend and also for your support over the last couple of years. Lots of love xxx _Claire Walter_
 
@@ -29,11 +29,11 @@ I’ve known Suzie from when our children were at infant school (abeit different
 
 Happy Birthday Suzie, welcome to the Saga club! _Hingy_
 
-Suzie shares a lot of kindness, consideration and humour with her fellow Allsorts, as well as being an excellent runner. I admire her passion and commitment for the community that she lives in and runs with, which I had the pleasure to experience on the Race committee over the past few years! Happy 50th Suzie! _Rachel O\'Reilly_
+Suzie shares a lot of kindness, consideration and humour with her fellow Allsorts, as well as being an excellent runner. I admire her passion and commitment for the community that she lives in and runs with, which I had the pleasure to experience on the Race committee over the past few years! Happy 50th Suzie! _Rachel O'Reilly_
 
-I met Suzie at Endure 3 years ago. Well, it started on the ride there. I soon realised that we both have a love of live music and concert going! And the same music. The second year, Suzie started organising the weekend, taking over from me. I thought I was organised!! She took the reigns and went for it. Suzie is meticulous but makes for a great weekend of running, eating and drinking. The third year, I had to drive, which I hate doing, and she was the best navigator ever. And the girl knows how to put up a tent. She\'s a joy to be around and I hate that I\'m missing it this year (damn peri menopause!). Happy 50th lady. Rock on! _Amie Reid_
+I met Suzie at Endure 3 years ago. Well, it started on the ride there. I soon realised that we both have a love of live music and concert going! And the same music. The second year, Suzie started organising the weekend, taking over from me. I thought I was organised!! She took the reigns and went for it. Suzie is meticulous but makes for a great weekend of running, eating and drinking. The third year, I had to drive, which I hate doing, and she was the best navigator ever. And the girl knows how to put up a tent. She's a joy to be around and I hate that I'm missing it this year (damn peri menopause!). Happy 50th lady. Rock on! _Amie Reid_
 
-Wishing Suzie (auntie) a very happy birthday from the Ghoshal gang! Here\'s to many more years of adventures, and making great family memories. All our love and best wishes. _Ghoshal family_
+Wishing Suzie (auntie) a very happy birthday from the Ghoshal gang! Here's to many more years of adventures, and making great family memories. All our love and best wishes. _Ghoshal family_
 
 Happy happy birthday to a fabulous runner, godmother, music lover, organiser, crocheter, punster, wise woman and unbelievably good friend. Also your hair looks fabulous, what have you done to it? Love to you from all the Hardakers but especially Em x _Hardaker family_
 
@@ -45,7 +45,7 @@ A white aunt in a Bengali scene, Suzie slipped in – effortless,unseen. Oxford 
 
 Happy birthday Suze. Carry on ignoring your age - you will always be 21 in my eyes (if only because it allows me to keep up the same illusion!). _Steve Parker_
 
-Suzie you have had a wonderful first 50 years - Oxford, a great career, two girls that adore you, cats that ignore you and a husband who forgets his shoes. Here\'s to the next 50 years! _Workman family_
+Suzie you have had a wonderful first 50 years - Oxford, a great career, two girls that adore you, cats that ignore you and a husband who forgets his shoes. Here's to the next 50 years! _Workman family_
 
 Cheers for those lockdown gins and popcorn on the terrace, while the world stood still. One of the better survival strategies! _Erika & Chris_
 

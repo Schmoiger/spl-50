@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
-import { parseMarkdown, type TextSegment } from '../utils/markdownParser';
+import { parseMarkdown } from '../utils/markdownParser';
 
 interface WordArtCanvasProps {
   markdownText: string;
@@ -25,8 +25,7 @@ const LINE_SPACING = 1.1; // Line height multiplier
 const PADDING = 50; // Safety margin on all sides
 const FONT_FAMILY = 'Inter, -apple-system, sans-serif';
 const CALLIGRAM_FONT_FAMILY = 'Inter, -apple-system, sans-serif';
-const BASE_COLOR = '#91b8a5'; // Sea foam
-const CALLIGRAM_COLOR = '#7e22ce'; // Sophisticated purple
+
 
 export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
   ({ markdownText, orientation, useTextMask, useImageMask, textPosition, calligramText, maskImage, maskThreshold = 128, maskInvert = false, bgColor, textColor, textColor2, calligramColor }, ref) => {
@@ -97,10 +96,15 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           width: number;
           isSpace: boolean;
         }
+
+        interface RenderLine {
+          words: RenderWord[];
+          extraSpace: number;
+        }
         
         const scaleForMeasuring = 100;
-        const baseWords: { chars: any[], width: number, isSpace: boolean }[] = [];
-        let tempChars: any[] = [];
+        const baseWords: RenderWord[] = [];
+        let tempChars: RenderChar[] = [];
         let tempWidth = 0;
 
         for (const seg of segments) {
@@ -131,14 +135,14 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         }
 
         const simulateLayout = (fSize: number) => {
-          let lines: { words: any[], extraSpace: number }[] = [];
-          let currentLine: any[] = [];
+          const lines: RenderLine[] = [];
+          let currentLine: RenderWord[] = [];
           let currentLineWidth = 0;
 
           for (const word of baseWords) {
             const wordWidth = word.width * fSize;
             if (currentLineWidth + wordWidth > SAFE_WIDTH && currentLine.length > 0) {
-              let lineToPush = [...currentLine];
+              const lineToPush = [...currentLine];
               let lineWidthToPush = currentLineWidth;
               if (lineToPush[lineToPush.length - 1].isSpace) {
                 const last = lineToPush.pop()!;
@@ -160,7 +164,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
 
         let minFS = fontSize * 0.5;
         let maxFS = fontSize * 2.0;
-        let finalLines: any[] = [];
+        let finalLines: RenderLine[] = [];
         
         for (let i = 0; i < 15; i++) { // Increase iterations for better precision
           const midFS = (minFS + maxFS) / 2;
@@ -175,14 +179,14 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         }
 
         // Final drawing loop
-        let y = PADDING + fontSize;
+        let drawY = PADDING + fontSize;
         ctx.textBaseline = 'bottom';
         ctx.textAlign = 'left';
         
         for (const line of finalLines) {
-          if (y - fontSize > CANVAS_HEIGHT - PADDING) break;
+          if (drawY - fontSize > CANVAS_HEIGHT - PADDING) break;
           
-          let x = PADDING;
+          let drawX = PADDING;
           const spaceWords = line.words.filter(w => w.isSpace);
           const spaceCount = spaceWords.length;
           
@@ -197,25 +201,25 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
               
               let color = charInfo.paragraphIndex % 2 === 0 ? textColor : textColor2;
               if (maskData) {
-                const sampleX = Math.floor(Math.min(Math.max(x + charWidth / 2, 0), CANVAS_WIDTH - 1));
-                const sampleY = Math.floor(Math.min(Math.max(y - fontSize / 2, 0), CANVAS_HEIGHT - 1));
+                const sampleX = Math.floor(Math.min(Math.max(drawX + charWidth / 2, 0), CANVAS_WIDTH - 1));
+                const sampleY = Math.floor(Math.min(Math.max(drawY - fontSize / 2, 0), CANVAS_HEIGHT - 1));
                 const index = (sampleY * CANVAS_WIDTH + sampleX) * 4;
                 const inMask = maskData.data[index] > 128;
                 if (inMask) color = calligramColor;
               }
               
               ctx.fillStyle = color;
-              ctx.fillText(charInfo.char, x, y);
-              x += charWidth;
+              ctx.fillText(charInfo.char, drawX, drawY);
+              drawX += charWidth;
             }
             if (word.isSpace) {
               // The natural width of the space was already added by the inner loop.
               // We only need to add the justification gap.
-              x += extraSpacePerGap;
+              drawX += extraSpacePerGap;
             }
           }
           
-          y += fontSize * LINE_SPACING;
+          drawY += fontSize * LINE_SPACING;
         }
       };
 
@@ -308,7 +312,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         drawTextOnMask();
       }
 
-    }, [markdownText, orientation, useTextMask, useImageMask, textPosition, calligramText, maskImage, maskThreshold, maskInvert, bgColor, textColor, textColor2, calligramColor]);
+    }, [markdownText, orientation, useTextMask, useImageMask, textPosition, calligramText, maskImage, maskThreshold, maskInvert, bgColor, textColor, textColor2, calligramColor, CANVAS_HEIGHT, CANVAS_WIDTH, SAFE_HEIGHT, SAFE_WIDTH]);
 
     return (
       <div className="w-full flex justify-center bg-base-200 p-4 rounded-xl shadow-inner overflow-hidden">

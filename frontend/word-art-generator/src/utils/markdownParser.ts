@@ -41,8 +41,8 @@ export function parseMarkdown(markdown: string): TextSegment[] {
         walk((token as Tokens.ListItem).tokens || [], bold, italic);
         segments.push({ text: ' ', bold: false, italic: false, paragraphIndex: currentParagraphIndex });
         currentParagraphIndex++;
-      } else if ((token as any).tokens) {
-        walk((token as any).tokens, bold, italic);
+      } else if ('tokens' in token && token.tokens) {
+        walk(token.tokens as Token[], bold, italic);
       }
     }
   }
