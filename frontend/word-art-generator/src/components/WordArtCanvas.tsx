@@ -22,6 +22,7 @@ export interface WordArtCanvasRef {
 }
 
 const LINE_SPACING = 1.1; // Line height multiplier
+const PADDING = 50; // Safety margin on all sides
 const FONT_FAMILY = 'Inter, -apple-system, sans-serif';
 const CALLIGRAM_FONT_FAMILY = 'Inter, -apple-system, sans-serif';
 const BASE_COLOR = '#91b8a5'; // Sea foam
@@ -33,6 +34,8 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
     
     const CANVAS_WIDTH = orientation === 'landscape' ? 1200 : 800;
     const CANVAS_HEIGHT = orientation === 'landscape' ? 800 : 1200;
+    const SAFE_WIDTH = CANVAS_WIDTH - (PADDING * 2);
+    const SAFE_HEIGHT = CANVAS_HEIGHT - (PADDING * 2);
 
     useImperativeHandle(ref, () => ({
       exportToPNG: () => {
@@ -77,7 +80,8 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         }
         
         const widthAt1px = totalBaseWidth / baseSize;
-        let fontSize = Math.sqrt((CANVAS_WIDTH * CANVAS_HEIGHT) / (widthAt1px * LINE_SPACING));
+        // Use SAFE dimensions for font size calculation
+        let fontSize = Math.sqrt((SAFE_WIDTH * SAFE_HEIGHT) / (widthAt1px * LINE_SPACING));
         
         // 5. Layout and Draw text
         interface RenderChar {
@@ -94,8 +98,6 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           isSpace: boolean;
         }
         
-        // Pre-measure characters and group into words at a 1px base
-        // This avoids repeated ctx.measureText calls in the loop
         const scaleForMeasuring = 100;
         const baseWords: { chars: any[], width: number, isSpace: boolean }[] = [];
         let tempChars: any[] = [];
@@ -128,7 +130,6 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           baseWords.push({ chars: tempChars, width: tempWidth, isSpace: false });
         }
 
-        // Helper to simulate layout at a given font size
         const simulateLayout = (fSize: number) => {
           let lines: { words: any[], extraSpace: number }[] = [];
           let currentLine: any[] = [];
@@ -136,14 +137,14 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
 
           for (const word of baseWords) {
             const wordWidth = word.width * fSize;
-            if (currentLineWidth + wordWidth > CANVAS_WIDTH && currentLine.length > 0) {
+            if (currentLineWidth + wordWidth > SAFE_WIDTH && currentLine.length > 0) {
               let lineToPush = [...currentLine];
               let lineWidthToPush = currentLineWidth;
               if (lineToPush[lineToPush.length - 1].isSpace) {
                 const last = lineToPush.pop()!;
                 lineWidthToPush -= last.width * fSize;
               }
-              lines.push({ words: lineToPush, extraSpace: CANVAS_WIDTH - lineWidthToPush });
+              lines.push({ words: lineToPush, extraSpace: SAFE_WIDTH - lineWidthToPush });
               currentLine = [];
               currentLineWidth = 0;
               if (word.isSpace) continue;
@@ -157,8 +158,6 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           return { lines, totalHeight: lines.length * (fSize * LINE_SPACING) };
         };
 
-        // Iteratively find the best font size (binary search or simple adjustment)
-        // We want totalHeight to be close to CANVAS_HEIGHT (e.g., 98%)
         let minFS = fontSize * 0.5;
         let maxFS = fontSize * 2.0;
         let finalLines: any[] = [];
@@ -166,8 +165,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         for (let i = 0; i < 10; i++) {
           const midFS = (minFS + maxFS) / 2;
           const { lines, totalHeight } = simulateLayout(midFS);
-          // Target 95% of height to allow for descenders and safety margin
-          if (totalHeight > CANVAS_HEIGHT * 0.95) {
+          if (totalHeight > SAFE_HEIGHT * 0.95) {
             maxFS = midFS;
           } else {
             minFS = midFS;
@@ -176,16 +174,31 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           finalLines = lines;
         }
 
-        let y = fontSize;
+        // Final drawing loop
+        let y = PADDING + fontSize;
         ctx.textBaseline = 'bottom';
+        ctx.textAlign = 'left';
         
         for (const line of finalLines) {
-          if (y - fontSize > CANVAS_HEIGHT) break;
+          if (y - fontSize > CANVAS_HEIGHT - PADDING) break;
           
-          let x = 0;
+          // Calculate the actual width of the line with current justification
+          let actualLineWidth = 0;
           const spaceWords = line.words.filter(w => w.isSpace);
           const spaceCount = spaceWords.length;
-          const extraSpacePerGap = (line.extraSpace > 0 && spaceCount > 0) ? line.extraSpace / spaceCount : 0;
+          const extraSpacePerGap = (line.extraSpace > 1 && spaceCount > 0) ? (line.extraSpace - 1) / spaceCount : 0;
+          
+          for (let i = 0; i < line.words.length; i++) {
+            const word = line.words[i];
+            actualLineWidth += word.width * fontSize;
+            if (word.isSpace) {
+              actualLineWidth += extraSpacePerGap;
+            }
+          }
+
+          // Center the justified line within the SAFE_WIDTH for perfect symmetry
+          const centeringOffset = (SAFE_WIDTH - actualLineWidth) / 2;
+          let x = PADDING + centeringOffset;
           
           for (const word of line.words) {
             for (const charInfo of word.chars) {
