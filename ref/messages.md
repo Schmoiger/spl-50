@@ -12,6 +12,8 @@ Happy Happy Birthday, thank you for always being a happy, positive, full of bean
 
 Suzie at fifty, fierce and bright, A runner at dawn, a rower in light. Strong woman so true. Loves and  enjoys gin or two. My friend whose warmth carries me through. Have the best 50th year keep being you. _Louise Acher_
 
+Well, l cannot believe where all the years have gone!! Our first meeting via the “Nannys” and what a lovely friendship we have built over the years. You are such an amazing person Suzie and l am glad we met. Happy 50th xx _Jacqui Wright_
+
 Happy Birthday Suzie, Have a fantastic day, shame we cant be there. Love from the Pitts! _Pitt family_
 
 There once was a lawyer called Suzie, Who would often be in Ewell getting boozy, Her friends thought her Savvy, Til she got married to Avi, They thought she would be far more choosy! _Skinner family_
@@ -54,24 +56,34 @@ Cheers for those lockdown gins and popcorn on the terrace, while the world stood
 
 Wishing you the happiest of birthday celebrations! I’m sure you look fabulous and I’m gutted I can’t be there in person to ask: “Yo Suze, what’ve you done with your hair?” Hope you have the most wonderful garden party. Avi really did have the most cunning of all cunning plans for this, in fact you could say there was a fox pinned right on it, so I think we can call that one a weasel! Looking forward to celebrating with you at our Mad Hatter’s Afternoon Tea in May. We’ll just have to hope Mr Hatter remembers to, “Make a cup of tea, put the kettle on” and we’ll all have a great time! HAPPY 50th xx _Nat_
 
+Where do I start with the memories Suzie? The hours we spent reading and reenacting tips from The Spy’s Guidebook and Detective's Handbook. Forming a series of different clubs during our time at infants school: Garfield Club, Worm Club and Morph Club to name a few. Our bid for musical success with the Three Wise Monkeys and entrepreneurial forays with the Rainbows End shop. Trips to the Isle of Wight and sailing camp and two barge trips. We’ve been friends for about 48 years now and here’s to many many more. Hope you have a fabulous 50th birthday and although we can’t be there, we will raise a glass to you. x
+_Rebecca, Paul, Heidi & Layla_
+
+Dear Suzie, happy, happy 50th dear friend! So many years of fun, friendship, tents, sausages, brunch, organic prosecco, AC/DC and more... Here's to the next 50! Much love, xxxx _Claudia_
+
+What Claudia said... _Jim_
+
+Once a pensions lawyer named Suzie, Whose friends' limericks left her feeling woozy, They tried really hard, but nothing rhythms with Suzie, So they gave up and got really boozy! Happy 50th Birthday! Glad you finally joined the fifties club! Love xx _Rachel, Scott, Jamie Sophie and Oli_
+
+There once was a Suzie so spry, Who’d sing every chorus sky-high With gin in her hand, At gigs she’d still stand, Outdancing her years—oh my my! Happy birthday, with lots of love, xxx _Vicki, Graeme & Henry_ 
+
 Suzie, my phirengi sister-in-law. Suzie the wife, is extremely caring and loves my brother to bits. As a daughter-in-law, in one word: dutiful. The mother in Suzie has no bounds, she goes beyond extra length. I know she is also close to her family and relatives, a very family person. I admire her as an individual and also for her baking, crafting and crocheting habits. Suzie, this is truly a milestone birthday. I wish you a very very happy birthday and wish you carry on with your marathons. _Chumkidi_
 
 Dear Suzie, add a touch of magic and sparkle on your birthday. Don’t worry, 50 is just a number. Stay blessed and healthy. Lots of love. _Dipra_
 
-Always remember skiing with Suzie. So much fun. One night we were recruited by the chalet staff for pub quiz night, seeing as many of us were Oxbridge students. However due to several wobbly-chocs we scored ZERO on each round!! _Scott-Goddard family_
+Always remember skiing with Suzie. So much fun. One night we were recruited by the chalet staff for pub quiz night, seeing as many of us were Oxbridge students. However due to several wobbly-chocs we scored ZERO on each round!! _Al S-G_
+
+Darling Suzie, big love from all the S-Gs on this, your 37th, Birthday. _Miriam S-G_
 
 Suzie was top in the whole country for her Business Studies GCSE   and got a special prize. Always proud of you. _Mum_
 
-Do you remember?: Rob, Pete and crew secretly pushed a bag of chips through Lee Chennel’s door (his nickname was Chippy) and the next day you innocently asked him if he enjoyed the chips! _Dave_
+Do you remember?: Rob, Pete and crew secretly pushed a bag of chips through Lee Chennel’s door (his nickname was Chippy) and the next day you innocently asked him if he enjoyed the chips! Love, _Dave_
 
 A Roman who lacked some civility, Philosophised with great humility, He said: “What the hell, I’m just turning L, It’s 50 more years to C-nility." _Avi_
 
 Lots of wonderful memories of Susspa and her dad on our boat Avalon. Sailing to the IOW with Suzie at the helm or tying up the boat. Happy Days!! Have a super birthday Suzie much
 Love as always, hope to see you soon. xxx _Trish_
 
-Where do I start with the memories Suzie? The hours we spent reading and reenacting tips from The Spy’s Guidebook and Detective's Handbook. Forming a series of different clubs during our time at infants school: Garfield Club, Worm Club and Morph Club to name a few. Our bid for musical success with the Three Wise Monkeys and entrepreneurial forays with the Rainbows End shop. Trips to the Isle of Wight and sailing camp and two barge trips. We’ve been friends for about 48 years now and here’s to many many more. Hope you have a fabulous 50th birthday and although we can’t be there, we will raise a glass to you. x
-_Rebecca, Paul, Heidi & Layla_
-
 Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to have you as my mother. You are the most special, amazing, inspiring person. You have taught me so much and always been there for me literally since before I was born. I am so so grateful for you and all you have done and continue to do for me and Priya. Thank you for being the best role model and inspiration as a person. I cannot believe you are 50 - you look the same as you did in my baby pictures! I hope to age as gracefully as you, and be as active as you, and as hardworking as you, when I am older. I love you more than I can say. xxxx _Isha_
 
-Happy Birthday Mum! I love you so much. Thank you for always being patient and someone I can turn to. I don’t know what I’d do without you. Love _Priya_
+Happy birthday Mum! I love you so much. Thank you for always being patient and someone I can turn to. I don’t know what I’d do without you. Love _Priya_
