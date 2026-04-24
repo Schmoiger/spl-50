@@ -1,5 +1,13 @@
-import React, { ChangeEvent, useRef, useEffect } from 'react';
-import { Upload, Download, Type, Image as ImageIcon, X, CheckSquare, LayoutTemplate } from 'lucide-react';
+import {
+  CheckSquare,
+  Download,
+  Image as ImageIcon,
+  LayoutTemplate,
+  Type,
+  Upload,
+  X,
+} from 'lucide-react';
+import React, { type ChangeEvent, useEffect, useRef } from 'react';
 
 interface ControlsProps {
   onMarkdownUpload: (content: string) => void;
@@ -83,7 +91,7 @@ export function Controls({
         const dataUrl = evt.target?.result;
         if (typeof dataUrl === 'string') {
           setMaskImage(dataUrl);
-          
+
           // Auto-detect background color
           const img = new Image();
           img.onload = () => {
@@ -96,7 +104,9 @@ export function Controls({
               // Sample top-left pixel (average a 5x5 area for robustness)
               const size = Math.min(5, img.width, img.height);
               const data = ctx.getImageData(0, 0, size, size).data;
-              let r = 0, g = 0, b = 0;
+              let r = 0,
+                g = 0,
+                b = 0;
               for (let i = 0; i < data.length; i += 4) {
                 r += data[i];
                 g += data[i + 1];
@@ -106,8 +116,10 @@ export function Controls({
               r = Math.round(r / count);
               g = Math.round(g / count);
               b = Math.round(b / count);
-              
-              setBgColor(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
+
+              setBgColor(
+                `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`,
+              );
             }
           };
           img.src = dataUrl;
@@ -124,7 +136,7 @@ export function Controls({
       const canvas = previewCanvasRef.current;
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) return;
-      
+
       const img = new Image();
       img.onload = () => {
         // Limit preview size
@@ -132,24 +144,24 @@ export function Controls({
         const scale = Math.min(1, MAX_WIDTH / img.width);
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
-        
+
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
+
         for (let i = 0; i < imageData.data.length; i += 4) {
           const r = imageData.data[i];
           const g = imageData.data[i + 1];
           const b = imageData.data[i + 2];
           const a = imageData.data[i + 3];
-          
+
           const brightness = (r * 299 + g * 587 + b * 114) / 1000;
           let inMask = false;
-          
+
           if (a > 50) {
             const isDarkEnough = brightness < maskThreshold;
             inMask = maskInvert ? !isDarkEnough : isDarkEnough;
           }
-          
+
           const color = inMask ? 255 : 0;
           imageData.data[i] = color;
           imageData.data[i + 1] = color;
@@ -183,7 +195,7 @@ export function Controls({
             <LayoutTemplate size={18} /> Canvas Orientation
           </span>
         </label>
-        <select 
+        <select
           value={orientation}
           onChange={(e) => setOrientation(e.target.value as 'landscape' | 'portrait')}
           className="select select-bordered w-full"
@@ -223,22 +235,22 @@ export function Controls({
         </label>
         <div className="flex gap-4 mb-2">
           <label className="cursor-pointer flex items-center gap-2">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={useTextMask}
               onChange={(e) => setUseTextMask(e.target.checked)}
-              className="checkbox checkbox-primary checkbox-sm" 
+              className="checkbox checkbox-primary checkbox-sm"
             />
-            <span className="label-text">Text</span> 
+            <span className="label-text">Text</span>
           </label>
           <label className="cursor-pointer flex items-center gap-2">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={useImageMask}
               onChange={(e) => setUseImageMask(e.target.checked)}
-              className="checkbox checkbox-secondary checkbox-sm" 
+              className="checkbox checkbox-secondary checkbox-sm"
             />
-            <span className="label-text">Image</span> 
+            <span className="label-text">Image</span>
           </label>
         </div>
       </div>
@@ -288,6 +300,7 @@ export function Controls({
               <div className="relative w-full rounded-lg border border-base-300 overflow-hidden bg-base-200 flex items-center justify-center p-2">
                 <canvas ref={previewCanvasRef} className="max-h-32 object-contain" />
                 <button
+                  type="button"
                   onClick={() => setMaskImage(null)}
                   className="btn btn-circle btn-xs btn-error absolute top-2 right-2"
                   aria-label="Remove image mask"
@@ -295,28 +308,30 @@ export function Controls({
                   <X size={14} />
                 </button>
               </div>
-              
+
               <div className="form-control w-full">
                 <label className="label">
-                  <span className="label-text font-semibold text-xs">Threshold ({maskThreshold})</span>
+                  <span className="label-text font-semibold text-xs">
+                    Threshold ({maskThreshold})
+                  </span>
                 </label>
                 <input
                   type="range"
                   min="0"
                   max="255"
                   value={maskThreshold}
-                  onChange={(e) => setMaskThreshold(parseInt(e.target.value))}
+                  onChange={(e) => setMaskThreshold(parseInt(e.target.value, 10))}
                   className="range range-xs range-secondary"
                 />
               </div>
-              
+
               <label className="cursor-pointer label">
-                <span className="label-text font-semibold text-xs">Invert Mask</span> 
-                <input 
-                  type="checkbox" 
+                <span className="label-text font-semibold text-xs">Invert Mask</span>
+                <input
+                  type="checkbox"
                   checked={maskInvert}
                   onChange={(e) => setMaskInvert(e.target.checked)}
-                  className="checkbox checkbox-secondary checkbox-sm" 
+                  className="checkbox checkbox-secondary checkbox-sm"
                 />
               </label>
             </div>
@@ -390,7 +405,7 @@ export function Controls({
         <label className="label">
           <span className="label-text font-semibold">Export Quality</span>
         </label>
-        <select 
+        <select
           value={exportScale}
           onChange={(e) => setExportScale(Number(e.target.value))}
           className="select select-bordered w-full select-sm"
@@ -401,15 +416,16 @@ export function Controls({
         </select>
       </div>
 
-      <button 
-        onClick={handleExportClick} 
+      <button
+        type="button"
+        onClick={handleExportClick}
         disabled={isExporting}
         className="btn btn-primary w-full gap-2 mt-2"
       >
         {isExporting ? (
-           <span className="loading loading-spinner loading-sm"></span>
+          <span className="loading loading-spinner loading-sm"></span>
         ) : (
-           <Download size={18} /> 
+          <Download size={18} />
         )}
         {isExporting ? 'Generating High-Res PNG...' : 'Export as PNG'}
       </button>

@@ -1,0 +1,3 @@
+cd frontend/word-art-generator
+yarn dlx @biomejs/biome check --write src/
+yarn tsc --noEmit

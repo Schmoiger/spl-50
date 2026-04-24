@@ -1,5 +1,5 @@
-import { lexer } from 'marked';
 import type { Token, Tokens } from 'marked';
+import { lexer } from 'marked';
 
 export interface TextSegment {
   text: string;
@@ -27,19 +27,34 @@ export function parseMarkdown(markdown: string): TextSegment[] {
           // Collapse whitespace (spaces, newlines, tabs) into a single space
           const cleanText = t.text.replace(/\s+/g, ' ');
           if (cleanText) {
-            segments.push({ text: cleanText, bold, italic, paragraphIndex: currentParagraphIndex });
+            segments.push({
+              text: cleanText,
+              bold,
+              italic,
+              paragraphIndex: currentParagraphIndex,
+            });
           }
         }
       } else if (token.type === 'paragraph' || token.type === 'heading') {
-        const t = token as (Tokens.Paragraph | Tokens.Heading);
+        const t = token as Tokens.Paragraph | Tokens.Heading;
         walk(t.tokens || [], bold, italic);
-        segments.push({ text: ' ', bold: false, italic: false, paragraphIndex: currentParagraphIndex });
+        segments.push({
+          text: ' ',
+          bold: false,
+          italic: false,
+          paragraphIndex: currentParagraphIndex,
+        });
         currentParagraphIndex++;
       } else if (token.type === 'list') {
         walk((token as Tokens.List).items || [], bold, italic);
       } else if (token.type === 'list_item') {
         walk((token as Tokens.ListItem).tokens || [], bold, italic);
-        segments.push({ text: ' ', bold: false, italic: false, paragraphIndex: currentParagraphIndex });
+        segments.push({
+          text: ' ',
+          bold: false,
+          italic: false,
+          paragraphIndex: currentParagraphIndex,
+        });
         currentParagraphIndex++;
       } else if ('tokens' in token && token.tokens) {
         walk(token.tokens as Token[], bold, italic);
@@ -48,17 +63,22 @@ export function parseMarkdown(markdown: string): TextSegment[] {
   }
 
   walk(tokens);
-  
+
   // Condense adjacent segments with the same formatting
   const condensed: TextSegment[] = [];
   for (const seg of segments) {
     const last = condensed[condensed.length - 1];
-    if (last && last.bold === seg.bold && last.italic === seg.italic && last.paragraphIndex === seg.paragraphIndex) {
+    if (
+      last &&
+      last.bold === seg.bold &&
+      last.italic === seg.italic &&
+      last.paragraphIndex === seg.paragraphIndex
+    ) {
       last.text += seg.text;
     } else {
       condensed.push({ ...seg });
     }
   }
-  
+
   return condensed;
 }

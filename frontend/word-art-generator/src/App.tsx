@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Controls } from './components/Controls';
 import { WordArtCanvas, type WordArtCanvasRef } from './components/WordArtCanvas';
 
 function App() {
-  const [markdownText, setMarkdownText] = useState<string>(`Happy Birthday "Our Kid"  Welcome to the 50's club. It's all downhill from here! Love xxx _Rob, Alex, Meg & Sam_
+  const [markdownText, setMarkdownText] =
+    useState<string>(`Happy Birthday "Our Kid"  Welcome to the 50's club. It's all downhill from here! Love xxx _Rob, Alex, Meg & Sam_
 
 Suzie: fastest with a book, slowest with a skidoo. Love _Phil, Tina, Chris, Ethan & Henry_
 
@@ -92,17 +93,17 @@ Love as always, hope to see you soon. xxx _Trish_
 Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to have you as my mother. You are the most special, amazing, inspiring person. You have taught me so much and always been there for me literally since before I was born. I am so so grateful for you and all you have done and continue to do for me and Priya. Thank you for being the best role model and inspiration as a person. I cannot believe you are 50 - you look the same as you did in my baby pictures! I hope to age as gracefully as you, and be as active as you, and as hardworking as you, when I am older. I love you more than I can say. xxxx _Isha_
 
 Happy birthday Mum! I love you so much. Thank you for always being patient and someone I can turn to. I don’t know what I’d do without you. Love _Priya_`);
-  
+
   const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
   const [useTextMask, setUseTextMask] = useState<boolean>(true);
   const [useImageMask, setUseImageMask] = useState<boolean>(true);
-  
+
   const [calligramTextAbove, setCalligramTextAbove] = useState<string>('ART');
   const [calligramTextBelow, setCalligramTextBelow] = useState<string>('');
   const [maskImage, setMaskImage] = useState<string | null>(null);
   const [maskThreshold, setMaskThreshold] = useState<number>(128);
   const [maskInvert, setMaskInvert] = useState<boolean>(false);
-  
+
   const [bgColor, setBgColor] = useState<string>('#fdfcf0'); // Off-white cream
   const [textColor, setTextColor] = useState<string>('#91b8a5'); // Sea foam
   const [textColor2, setTextColor2] = useState<string>('#5491c0'); // Updated gentle blue
@@ -118,8 +119,8 @@ Happy birthday Mum! I love you so much. Thank you for always being patient and s
       <header className="text-center max-w-2xl">
         <h1 className="text-4xl font-extrabold text-primary mb-4">Word Art Generator</h1>
         <p className="text-base-content/80 text-lg">
-          Convert your markdown text into beautiful, landscape word art. 
-          Use the calligram feature to reveal hidden words within the text!
+          Convert your markdown text into beautiful, landscape word art. Use the calligram feature
+          to reveal hidden words within the text!
         </p>
       </header>
 
@@ -155,7 +156,7 @@ Happy birthday Mum! I love you so much. Thank you for always being patient and s
             markdownText={markdownText}
           />
         </div>
-        
+
         <div className="w-full lg:w-2/3">
           <WordArtCanvas
             ref={canvasRef}
