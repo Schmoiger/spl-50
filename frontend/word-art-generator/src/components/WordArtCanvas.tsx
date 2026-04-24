@@ -1,4 +1,4 @@
-import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { parseMarkdown, type TextSegment } from '../utils/markdownParser';
 
 interface WordArtCanvasProps {
@@ -18,14 +18,13 @@ interface WordArtCanvasProps {
 }
 
 export interface WordArtCanvasRef {
-  exportToPNG: () => void;
+  exportToPNG: (scaleMultiplier?: number) => Promise<void>;
 }
 
 const LINE_SPACING = 1.1; // Line height multiplier
 const PADDING = 50; // Safety margin on all sides
 const FONT_FAMILY = 'Inter, -apple-system, sans-serif';
 const CALLIGRAM_FONT_FAMILY = 'Inter, -apple-system, sans-serif';
-
 
 interface RenderChar {
   char: string;
@@ -191,32 +190,24 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
   ({ markdownText, orientation, useTextMask, useImageMask, calligramTextAbove, calligramTextBelow, maskImage, maskThreshold = 128, maskInvert = false, bgColor, textColor, textColor2, calligramColor }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     
-    const CANVAS_WIDTH = orientation === 'landscape' ? 1200 : 800;
-    const CANVAS_HEIGHT = orientation === 'landscape' ? 800 : 1200;
-    const SAFE_WIDTH = CANVAS_WIDTH - (PADDING * 2);
-    const SAFE_HEIGHT = CANVAS_HEIGHT - (PADDING * 2);
+    const BASE_WIDTH = orientation === 'landscape' ? 1240 : 877;
+    const BASE_HEIGHT = orientation === 'landscape' ? 877 : 1240;
 
-    useImperativeHandle(ref, () => ({
-      exportToPNG: () => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const url = canvas.toDataURL('image/png');
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'word-art.png';
-        a.click();
-      },
-    }));
+    const renderWordArt = useCallback(async (targetCanvas: HTMLCanvasElement, multiplier: number = 1) => {
+      const width = BASE_WIDTH * multiplier;
+      const height = BASE_HEIGHT * multiplier;
+      const padding = PADDING * multiplier;
+      const safeWidth = width - (padding * 2);
+      const safeHeight = height - (padding * 2);
 
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      targetCanvas.width = width;
+      targetCanvas.height = height;
+      const ctx = targetCanvas.getContext('2d', { willReadFrequently: true });
       if (!ctx) return;
 
       // 1. Clear background
       ctx.fillStyle = bgColor || '#fdfcf0';
-      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      ctx.fillRect(0, 0, width, height);
 
       if (!markdownText) return;
 
@@ -242,9 +233,8 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         
         const widthAt1px = totalBaseWidth / baseSize;
         // Use SAFE dimensions for font size calculation
-        let fontSize = Math.sqrt((SAFE_WIDTH * SAFE_HEIGHT) / (widthAt1px * LINE_SPACING));
+        let fontSize = Math.sqrt((safeWidth * safeHeight) / (widthAt1px * LINE_SPACING));
         
-        // 5. Layout and Draw text
         const baseWords = createBaseWords(segments, measureCtx);
 
         let minFS = fontSize * 0.5;
@@ -253,8 +243,8 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         
         for (let i = 0; i < 15; i++) { // Increase iterations for better precision
           const midFS = (minFS + maxFS) / 2;
-          const { lines, totalHeight } = calculateLayout(baseWords, midFS, SAFE_WIDTH);
-          if (totalHeight > SAFE_HEIGHT) {
+          const { lines, totalHeight } = calculateLayout(baseWords, midFS, safeWidth);
+          if (totalHeight > safeHeight) {
             maxFS = midFS;
           } else {
             minFS = midFS;
@@ -265,9 +255,9 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
 
         // Final drawing loop
         renderLayout(ctx, finalLines, fontSize, maskData, {
-          canvasWidth: CANVAS_WIDTH,
-          canvasHeight: CANVAS_HEIGHT,
-          padding: PADDING,
+          canvasWidth: width,
+          canvasHeight: height,
+          padding: padding,
           lineSpacing: LINE_SPACING,
           textColor,
           textColor2,
@@ -277,8 +267,8 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
 
       // 6. Create calligram mask
       const maskCanvas = document.createElement('canvas');
-      maskCanvas.width = CANVAS_WIDTH;
-      maskCanvas.height = CANVAS_HEIGHT;
+      maskCanvas.width = width;
+      maskCanvas.height = height;
       const maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
       
       if (!maskCtx || (!useImageMask && !useTextMask)) {
@@ -291,7 +281,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
 
       const drawTextOnMask = () => {
         if (!useTextMask) {
-          const maskData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          const maskData = maskCtx.getImageData(0, 0, width, height);
           drawWithMask(maskData);
           return;
         }
@@ -300,9 +290,9 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           maskCtx.fillStyle = 'white';
           maskCtx.textAlign = 'center';
           maskCtx.textBaseline = baseline;
-          let cSize = 500;
+          let cSize = 500 * multiplier;
           maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
-          while ((maskCtx.measureText(text).width > CANVAS_WIDTH * 0.9 || cSize > maxH) && cSize > 5) {
+          while ((maskCtx.measureText(text).width > width * 0.9 || cSize > maxH) && cSize > 5) {
             cSize -= 5;
             maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
           }
@@ -313,98 +303,119 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
             yPos -= descent;
           }
           
-          maskCtx.fillText(text, CANVAS_WIDTH / 2, yPos);
+          maskCtx.fillText(text, width / 2, yPos);
         };
 
-        const breathingRoom = CANVAS_HEIGHT * 0.03;
-        const yAbove = PADDING + breathingRoom;
-        const yBelow = CANVAS_HEIGHT - PADDING - breathingRoom;
-        const maxTextHeight = CANVAS_HEIGHT * 0.10;
+        const breathingRoom = height * 0.03;
+        const yAbove = padding + breathingRoom;
+        const yBelow = height - padding - breathingRoom;
+        const maxTextHeight = height * 0.1;
         
         if (!useImageMask || !maskImage) {
            if (hasAboveText && !hasBelowText) {
-             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9, 'middle');
+             drawCenteredText(calligramTextAbove, height / 2, height * 0.9, 'middle');
            } else if (!hasAboveText && hasBelowText) {
-             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT / 2, CANVAS_HEIGHT * 0.9, 'middle');
+             drawCenteredText(calligramTextBelow, height / 2, height * 0.9, 'middle');
            } else if (hasAboveText && hasBelowText) {
-             drawCenteredText(calligramTextAbove, CANVAS_HEIGHT * 0.25, CANVAS_HEIGHT * 0.4, 'middle');
-             drawCenteredText(calligramTextBelow, CANVAS_HEIGHT * 0.75, CANVAS_HEIGHT * 0.4, 'middle');
+             drawCenteredText(calligramTextAbove, height * 0.25, height * 0.4, 'middle');
+             drawCenteredText(calligramTextBelow, height * 0.75, height * 0.4, 'middle');
            }
         } else {
            if (hasAboveText) drawCenteredText(calligramTextAbove, yAbove, maxTextHeight, 'top');
            if (hasBelowText) drawCenteredText(calligramTextBelow, yBelow, maxTextHeight, 'bottom');
         }
         
-        const maskData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        const maskData = maskCtx.getImageData(0, 0, width, height);
         drawWithMask(maskData);
       };
 
-      maskCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      maskCtx.clearRect(0, 0, width, height);
 
       if (useImageMask && maskImage) {
-        const img = new Image();
-        img.onload = () => {
-          let availableHeight = CANVAS_HEIGHT;
-          let imageYOffset = 0;
-          
-          if (hasAboveText && hasBelowText) {
-            availableHeight = CANVAS_HEIGHT * 0.6; // leaves 20% top, 20% bottom
-            imageYOffset = CANVAS_HEIGHT * 0.2;
-          } else if (hasAboveText) {
-            availableHeight = CANVAS_HEIGHT * 0.8;
-            imageYOffset = CANVAS_HEIGHT * 0.2;
-          } else if (hasBelowText) {
-            availableHeight = CANVAS_HEIGHT * 0.8;
-          }
-
-          const scale = Math.min(CANVAS_WIDTH / img.width, availableHeight / img.height) * 0.9;
-          const w = img.width * scale;
-          const h = img.height * scale;
-          const x = (CANVAS_WIDTH - w) / 2;
-          const y = imageYOffset + (availableHeight - h) / 2;
-          
-          maskCtx.drawImage(img, x, y, w, h);
-          const imageData = maskCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-          
-          for (let i = 0; i < imageData.data.length; i += 4) {
-            const r = imageData.data[i];
-            const g = imageData.data[i + 1];
-            const b = imageData.data[i + 2];
-            const a = imageData.data[i + 3];
+        await new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            let availableHeight = height;
+            let imageYOffset = 0;
             
-            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-            let inMask = false;
-            
-            if (a > 50) {
-              const isDarkEnough = brightness < maskThreshold;
-              inMask = maskInvert ? !isDarkEnough : isDarkEnough;
+            if (hasAboveText && hasBelowText) {
+              availableHeight = height * 0.6; // leaves 20% top, 20% bottom
+              imageYOffset = height * 0.2;
+            } else if (hasAboveText) {
+              availableHeight = height * 0.8;
+              imageYOffset = height * 0.2;
+            } else if (hasBelowText) {
+              availableHeight = height * 0.8;
             }
+
+            const scale = Math.min(width / img.width, availableHeight / img.height) * 0.9;
+            const w = img.width * scale;
+            const h = img.height * scale;
+            const x = (width - w) / 2;
+            const y = imageYOffset + (availableHeight - h) / 2;
             
-            const color = inMask ? 255 : 0;
-            imageData.data[i] = color;
-            imageData.data[i + 1] = color;
-            imageData.data[i + 2] = color;
-            imageData.data[i + 3] = 255;
-          }
-          maskCtx.putImageData(imageData, 0, 0);
-          
-          drawTextOnMask();
-        };
-        img.src = maskImage;
+            maskCtx.drawImage(img, x, y, w, h);
+            const imageData = maskCtx.getImageData(0, 0, width, height);
+            
+            for (let i = 0; i < imageData.data.length; i += 4) {
+              const r = imageData.data[i];
+              const g = imageData.data[i + 1];
+              const b = imageData.data[i + 2];
+              const a = imageData.data[i + 3];
+              
+              const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+              let inMask = false;
+              
+              if (a > 50) {
+                const isDarkEnough = brightness < maskThreshold;
+                inMask = maskInvert ? !isDarkEnough : isDarkEnough;
+              }
+              
+              const color = inMask ? 255 : 0;
+              imageData.data[i] = color;
+              imageData.data[i + 1] = color;
+              imageData.data[i + 2] = color;
+              imageData.data[i + 3] = 255;
+            }
+            maskCtx.putImageData(imageData, 0, 0);
+            
+            drawTextOnMask();
+            resolve();
+          };
+          img.src = maskImage;
+        });
       } else {
         drawTextOnMask();
       }
+    }, [markdownText, useTextMask, useImageMask, calligramTextAbove, calligramTextBelow, maskImage, maskThreshold, maskInvert, bgColor, textColor, textColor2, calligramColor, BASE_WIDTH, BASE_HEIGHT]);
 
-    }, [markdownText, orientation, useTextMask, useImageMask, calligramTextAbove, calligramTextBelow, maskImage, maskThreshold, maskInvert, bgColor, textColor, textColor2, calligramColor, CANVAS_HEIGHT, CANVAS_WIDTH, SAFE_HEIGHT, SAFE_WIDTH]);
+    useImperativeHandle(ref, () => ({
+      exportToPNG: async (scaleMultiplier: number = 1) => {
+        const tempCanvas = document.createElement('canvas');
+        await renderWordArt(tempCanvas, scaleMultiplier);
+        const url = tempCanvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `word-art-${scaleMultiplier}x.png`;
+        a.click();
+      },
+    }));
+
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        renderWordArt(canvas, 1);
+      }
+    }, [renderWordArt]);
 
     return (
       <div className="w-full flex justify-center bg-base-200 p-4 rounded-xl shadow-inner overflow-hidden">
         <canvas
           ref={canvasRef}
-          width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
+          width={BASE_WIDTH}
+          height={BASE_HEIGHT}
           className="w-full max-w-4xl h-auto shadow-lg bg-white object-contain"
-          style={{ aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}` }}
+          style={{ aspectRatio: `${BASE_WIDTH}/${BASE_HEIGHT}` }}
         />
       </div>
     );
