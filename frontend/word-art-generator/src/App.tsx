@@ -78,7 +78,7 @@ Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to hav
   
   const [bgColor, setBgColor] = useState<string>('#fdfcf0'); // Off-white cream
   const [textColor, setTextColor] = useState<string>('#91b8a5'); // Sea foam
-  const [textColor2, setTextColor2] = useState<string>('#82a6c2'); // Gentle blue
+  const [textColor2, setTextColor2] = useState<string>('#5491c0'); // Updated gentle blue
   const [calligramColor, setCalligramColor] = useState<string>('#7e22ce'); // Sophisticated purple
   const canvasRef = useRef<WordArtCanvasRef>(null);
 

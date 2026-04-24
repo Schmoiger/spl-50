@@ -254,7 +254,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         for (let i = 0; i < 15; i++) { // Increase iterations for better precision
           const midFS = (minFS + maxFS) / 2;
           const { lines, totalHeight } = calculateLayout(baseWords, midFS, SAFE_WIDTH);
-          if (totalHeight > SAFE_HEIGHT * 0.95) {
+          if (totalHeight > SAFE_HEIGHT) {
             maxFS = midFS;
           } else {
             minFS = midFS;
@@ -309,8 +309,8 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           maskCtx.fillText(text, CANVAS_WIDTH / 2, yPos);
         };
 
-        const yAbove = CANVAS_HEIGHT * 0.05; // 5% padding from top
-        const yBelow = CANVAS_HEIGHT * 0.95; // 5% padding from bottom
+        const yAbove = PADDING;
+        const yBelow = CANVAS_HEIGHT - PADDING;
         const maxTextHeight = CANVAS_HEIGHT * 0.12;
         
         if (!useImageMask || !maskImage) {

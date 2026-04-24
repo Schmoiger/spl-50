@@ -1,3 +1,7 @@
+Happy Birthday "Our Kid"  Welcome to the 50's club. It's all downhill from here! Love xxx _Rob, Alex, Meg & Sam_
+
+Suzie: fastest with a book, slowest with a skidoo. Love _Phil, Tina, Chris, Ethan & Henry_
+
 Happy big birthday Suze! I’m sorry I can’t be at the party but I shall raise a glass from sunny Mallorca to celebrate 50 trips around the sun, and a toast to the next 50… Looking forward to celebrating in person with our shenanigans on 16th - may we never grow up and may we always find time for rude theatre and high tea. Lots of love, xxx _Clare Jarvis_
 
 Huge congratulations on your big birthday from all the Ferdinando family. We have loved all the holidays, parties, BBQ’s, shows, walks and celebrations over the years while watching the families grow. We’ve lost count of the decades we’ve been friends and are so looking forward to many more. You hold such a special place in our hearts. They say the true judge of person is what they do when no-one is watching, I think you can add to that measure “who your children turn out to be”. You have nurtured 2 fabulous daughters, it has been a privilege to watch that happen. But the biggest THANK YOU I have to save for the day you married Avi and removed the responsibility from me for organising his world (sorry about the shoes on the wedding day!) best man duties done though and handed over to you. You’ve done such a better job than I did before you walked in to his life. Hope you have a wonderful birthday, lots of love the Ferdinando’s. Raise a glass to past memories, present friends and future adventures (sailing trips without mopeds?). _Ferdinando family_
@@ -60,11 +64,7 @@ Suzie was top in the whole country for her Business Studies GCSE   and got a spe
 
 Do you remember?: Rob, Pete and crew secretly pushed a bag of chips through Lee Chennel’s door (his nickname was Chippy) and the next day you innocently asked him if he enjoyed the chips! _Dave_
 
-Happy Birthday "Our Kid"  Welcome to the 50's club. It's all downhill from here! Love xxx _Rob, Alex, Meg & Sam_
-
 A Roman who lacked some civility, Philosophised with great humility, He said: “What the hell, I’m just turning L, It’s 50 more years to C-nility." _Avi_
-
-Suzie: fastest with a book, slowest with a skidoo. Love _Phil_
 
 Lots of wonderful memories of Susspa and her dad on our boat Avalon. Sailing to the IOW with Suzie at the helm or tying up the boat. Happy Days!! Have a super birthday Suzie much
 Love as always, hope to see you soon. xxx _Trish_
