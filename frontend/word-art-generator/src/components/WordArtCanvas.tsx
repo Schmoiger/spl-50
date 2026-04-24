@@ -306,6 +306,13 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
             cSize -= 5;
             maskCtx.font = `900 ${cSize}px ${CALLIGRAM_FONT_FAMILY}`;
           }
+          
+          if (baseline === 'bottom') {
+            const metrics = maskCtx.measureText(text);
+            const descent = metrics.actualBoundingBoxDescent || (cSize * 0.25);
+            yPos -= descent;
+          }
+          
           maskCtx.fillText(text, CANVAS_WIDTH / 2, yPos);
         };
 
