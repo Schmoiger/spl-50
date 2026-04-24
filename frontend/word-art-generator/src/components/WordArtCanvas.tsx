@@ -309,7 +309,7 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
         const breathingRoom = height * 0.03;
         const yAbove = padding + breathingRoom;
         const yBelow = height - padding - breathingRoom;
-        const maxTextHeight = height * 0.10;
+        const maxTextHeight = height * 0.1;
         
         if (!useImageMask || !maskImage) {
            if (hasAboveText && !hasBelowText) {
