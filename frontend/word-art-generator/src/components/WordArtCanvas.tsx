@@ -316,9 +316,10 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
           maskCtx.fillText(text, CANVAS_WIDTH / 2, yPos);
         };
 
-        const yAbove = PADDING;
-        const yBelow = CANVAS_HEIGHT - PADDING;
-        const maxTextHeight = CANVAS_HEIGHT * 0.12;
+        const breathingRoom = CANVAS_HEIGHT * 0.03;
+        const yAbove = PADDING + breathingRoom;
+        const yBelow = CANVAS_HEIGHT - PADDING - breathingRoom;
+        const maxTextHeight = CANVAS_HEIGHT * 0.10;
         
         if (!useImageMask || !maskImage) {
            if (hasAboveText && !hasBelowText) {
