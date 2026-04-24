@@ -27,7 +27,7 @@ interface ControlsProps {
   setTextColor2: (color: string) => void;
   calligramColor: string;
   setCalligramColor: (color: string) => void;
-  onExport: () => void;
+  onExport: (scale: number) => void;
   markdownText: string;
 }
 
@@ -60,6 +60,7 @@ export function Controls({
   onExport,
   markdownText,
 }: ControlsProps) {
+  const [exportScale, setExportScale] = React.useState<number>(1);
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -160,6 +161,17 @@ export function Controls({
       img.src = maskImage;
     }
   }, [maskImage, maskThreshold, maskInvert]);
+
+  const [isExporting, setIsExporting] = React.useState(false);
+
+  const handleExportClick = async () => {
+    setIsExporting(true);
+    try {
+      await onExport(exportScale);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="card bg-base-100 shadow-xl p-6 flex flex-col gap-6 w-full max-w-sm">
@@ -372,8 +384,34 @@ export function Controls({
         </div>
       </div>
 
-      <button onClick={onExport} className="btn btn-primary w-full gap-2 mt-4">
-        <Download size={18} /> Export as PNG
+      <div className="divider my-0" />
+
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text font-semibold">Export Quality</span>
+        </label>
+        <select 
+          value={exportScale}
+          onChange={(e) => setExportScale(Number(e.target.value))}
+          className="select select-bordered w-full select-sm"
+        >
+          <option value={1}>Standard Web (1x)</option>
+          <option value={4}>High Print A3 (4x)</option>
+          <option value={8}>Ultra Print A1 (8x)</option>
+        </select>
+      </div>
+
+      <button 
+        onClick={handleExportClick} 
+        disabled={isExporting}
+        className="btn btn-primary w-full gap-2 mt-2"
+      >
+        {isExporting ? (
+           <span className="loading loading-spinner loading-sm"></span>
+        ) : (
+           <Download size={18} /> 
+        )}
+        {isExporting ? 'Generating High-Res PNG...' : 'Export as PNG'}
       </button>
     </div>
   );

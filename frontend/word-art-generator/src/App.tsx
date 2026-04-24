@@ -82,8 +82,8 @@ Dear Mum, Happy birthday to the most wonderful mother ever! I am so lucky to hav
   const [calligramColor, setCalligramColor] = useState<string>('#7e22ce'); // Sophisticated purple
   const canvasRef = useRef<WordArtCanvasRef>(null);
 
-  const handleExport = () => {
-    canvasRef.current?.exportToPNG();
+  const handleExport = (scale: number) => {
+    canvasRef.current?.exportToPNG(scale);
   };
 
   return (
