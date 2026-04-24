@@ -1,10 +1,24 @@
-import React, { ChangeEvent } from 'react';
-import { Upload, Download, Type } from 'lucide-react';
+import React, { ChangeEvent, useRef, useEffect } from 'react';
+import { Upload, Download, Type, Image as ImageIcon, X, CheckSquare, LayoutTemplate } from 'lucide-react';
 
 interface ControlsProps {
   onMarkdownUpload: (content: string) => void;
-  calligramText: string;
-  setCalligramText: (text: string) => void;
+  orientation: 'landscape' | 'portrait';
+  setOrientation: (val: 'landscape' | 'portrait') => void;
+  useTextMask: boolean;
+  setUseTextMask: (val: boolean) => void;
+  useImageMask: boolean;
+  setUseImageMask: (val: boolean) => void;
+  calligramTextAbove: string;
+  setCalligramTextAbove: (text: string) => void;
+  calligramTextBelow: string;
+  setCalligramTextBelow: (text: string) => void;
+  maskImage: string | null;
+  setMaskImage: (image: string | null) => void;
+  maskThreshold: number;
+  setMaskThreshold: (val: number) => void;
+  maskInvert: boolean;
+  setMaskInvert: (val: boolean) => void;
   bgColor: string;
   setBgColor: (color: string) => void;
   textColor: string;
@@ -14,12 +28,27 @@ interface ControlsProps {
   calligramColor: string;
   setCalligramColor: (color: string) => void;
   onExport: () => void;
+  markdownText: string;
 }
 
 export function Controls({
   onMarkdownUpload,
-  calligramText,
-  setCalligramText,
+  orientation,
+  setOrientation,
+  useTextMask,
+  setUseTextMask,
+  useImageMask,
+  setUseImageMask,
+  calligramTextAbove,
+  setCalligramTextAbove,
+  calligramTextBelow,
+  setCalligramTextBelow,
+  maskImage,
+  setMaskImage,
+  maskThreshold,
+  setMaskThreshold,
+  maskInvert,
+  setMaskInvert,
   bgColor,
   setBgColor,
   textColor,
@@ -29,6 +58,7 @@ export function Controls({
   calligramColor,
   setCalligramColor,
   onExport,
+  markdownText,
 }: ControlsProps) {
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,6 +74,93 @@ export function Controls({
     }
   };
 
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const dataUrl = evt.target?.result;
+        if (typeof dataUrl === 'string') {
+          setMaskImage(dataUrl);
+          
+          // Auto-detect background color
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              // Sample top-left pixel (average a 5x5 area for robustness)
+              const size = Math.min(5, img.width, img.height);
+              const data = ctx.getImageData(0, 0, size, size).data;
+              let r = 0, g = 0, b = 0;
+              for (let i = 0; i < data.length; i += 4) {
+                r += data[i];
+                g += data[i + 1];
+                b += data[i + 2];
+              }
+              const count = data.length / 4;
+              r = Math.round(r / count);
+              g = Math.round(g / count);
+              b = Math.round(b / count);
+              
+              setBgColor(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
+            }
+          };
+          img.src = dataUrl;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (maskImage && previewCanvasRef.current) {
+      const canvas = previewCanvasRef.current;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+      
+      const img = new Image();
+      img.onload = () => {
+        // Limit preview size
+        const MAX_WIDTH = 300;
+        const scale = Math.min(1, MAX_WIDTH / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        
+        for (let i = 0; i < imageData.data.length; i += 4) {
+          const r = imageData.data[i];
+          const g = imageData.data[i + 1];
+          const b = imageData.data[i + 2];
+          const a = imageData.data[i + 3];
+          
+          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+          let inMask = false;
+          
+          if (a > 50) {
+            const isDarkEnough = brightness < maskThreshold;
+            inMask = maskInvert ? !isDarkEnough : isDarkEnough;
+          }
+          
+          const color = inMask ? 255 : 0;
+          imageData.data[i] = color;
+          imageData.data[i + 1] = color;
+          imageData.data[i + 2] = color;
+          imageData.data[i + 3] = 255;
+        }
+        ctx.putImageData(imageData, 0, 0);
+      };
+      img.src = maskImage;
+    }
+  }, [maskImage, maskThreshold, maskInvert]);
+
   return (
     <div className="card bg-base-100 shadow-xl p-6 flex flex-col gap-6 w-full max-w-sm">
       <h2 className="text-2xl font-bold text-center">Word Art Setup</h2>
@@ -51,31 +168,149 @@ export function Controls({
       <div className="form-control w-full">
         <label className="label">
           <span className="label-text font-semibold flex items-center gap-2">
-            <Upload size={18} /> Upload Markdown
+            <LayoutTemplate size={18} /> Canvas Orientation
           </span>
         </label>
-        <input
-          type="file"
-          accept=".md,.txt"
-          onChange={handleFileUpload}
-          className="file-input file-input-bordered file-input-primary w-full"
-        />
+        <select 
+          value={orientation}
+          onChange={(e) => setOrientation(e.target.value as 'landscape' | 'portrait')}
+          className="select select-bordered w-full"
+        >
+          <option value="landscape">Landscape</option>
+          <option value="portrait">Portrait</option>
+        </select>
       </div>
 
       <div className="form-control w-full">
         <label className="label">
           <span className="label-text font-semibold flex items-center gap-2">
-            <Type size={18} /> Calligram Text
+            <Upload size={18} /> Content
           </span>
         </label>
-        <input
-          type="text"
-          value={calligramText}
-          onChange={(e) => setCalligramText(e.target.value)}
-          placeholder="e.g. HELLO"
-          className="input input-bordered w-full"
-        />
+        <div className="flex flex-col gap-2">
+          <input
+            type="file"
+            accept=".md,.txt"
+            onChange={handleFileUpload}
+            className="file-input file-input-bordered file-input-primary file-input-sm w-full"
+          />
+          <textarea
+            value={typeof markdownText === 'string' ? markdownText : ''}
+            onChange={(e) => onMarkdownUpload(e.target.value)}
+            className="textarea textarea-bordered h-32 w-full text-xs font-mono"
+            placeholder="Or paste your markdown here..."
+          />
+        </div>
       </div>
+
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text font-semibold flex items-center gap-2">
+            <CheckSquare size={18} /> Mask Type
+          </span>
+        </label>
+        <div className="flex gap-4 mb-2">
+          <label className="cursor-pointer flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              checked={useTextMask}
+              onChange={(e) => setUseTextMask(e.target.checked)}
+              className="checkbox checkbox-primary checkbox-sm" 
+            />
+            <span className="label-text">Text</span> 
+          </label>
+          <label className="cursor-pointer flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              checked={useImageMask}
+              onChange={(e) => setUseImageMask(e.target.checked)}
+              className="checkbox checkbox-secondary checkbox-sm" 
+            />
+            <span className="label-text">Image</span> 
+          </label>
+        </div>
+      </div>
+
+      {useTextMask && (
+        <div className="form-control w-full">
+          <label className="label">
+            <span className="label-text font-semibold flex items-center gap-2">
+              <Type size={18} /> Calligram Text
+            </span>
+          </label>
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              value={calligramTextAbove}
+              onChange={(e) => setCalligramTextAbove(e.target.value)}
+              placeholder="Text Above Image (optional)"
+              className="input input-bordered w-full"
+            />
+            <input
+              type="text"
+              value={calligramTextBelow}
+              onChange={(e) => setCalligramTextBelow(e.target.value)}
+              placeholder="Text Below Image (optional)"
+              className="input input-bordered w-full"
+            />
+          </div>
+        </div>
+      )}
+
+      {useImageMask && (
+        <div className="form-control w-full">
+          <label className="label">
+            <span className="label-text font-semibold flex items-center gap-2">
+              <ImageIcon size={18} /> Calligram Image Mask
+            </span>
+          </label>
+          {!maskImage ? (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="file-input file-input-bordered file-input-secondary w-full"
+            />
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="relative w-full rounded-lg border border-base-300 overflow-hidden bg-base-200 flex items-center justify-center p-2">
+                <canvas ref={previewCanvasRef} className="max-h-32 object-contain" />
+                <button
+                  onClick={() => setMaskImage(null)}
+                  className="btn btn-circle btn-xs btn-error absolute top-2 right-2"
+                  aria-label="Remove image mask"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text font-semibold text-xs">Threshold ({maskThreshold})</span>
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="255"
+                  value={maskThreshold}
+                  onChange={(e) => setMaskThreshold(parseInt(e.target.value))}
+                  className="range range-xs range-secondary"
+                />
+              </div>
+              
+              <label className="cursor-pointer label">
+                <span className="label-text font-semibold text-xs">Invert Mask</span> 
+                <input 
+                  type="checkbox" 
+                  checked={maskInvert}
+                  onChange={(e) => setMaskInvert(e.target.checked)}
+                  className="checkbox checkbox-secondary checkbox-sm" 
+                />
+              </label>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="form-control w-full">
         <label className="label">
