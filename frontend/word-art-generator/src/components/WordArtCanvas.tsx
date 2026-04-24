@@ -347,7 +347,6 @@ export const WordArtCanvas = forwardRef<WordArtCanvasRef, WordArtCanvasProps>(
             imageYOffset = CANVAS_HEIGHT * 0.2;
           } else if (hasBelowText) {
             availableHeight = CANVAS_HEIGHT * 0.8;
-            imageYOffset = 0;
           }
 
           const scale = Math.min(CANVAS_WIDTH / img.width, availableHeight / img.height) * 0.9;

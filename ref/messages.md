@@ -38,6 +38,8 @@ Dear Suzie, Happy 50th. Stepping into the fifth decade of one’s life is yet an
 
 A white aunt in a Bengali scene, Suzie slipped in – effortless,unseen. Oxford brain, marathon pace, Sunday Stir-ups, all in place. Cats named after Scooby-Doo’s crew at home, Gousto dinners – the family need not roam. Married my uncle, University of Cambridge and all that flair, which, as a kid, was truly something rare. So I’d tell anyone, with absolute glee – “My aunt’s cooler than yours,” quite matter-of-factly. Happy 50th Suzie kaki, thank you for your love and care during my London days. Have a blast and see you soon! _Nushi_
 
+Happy Birthday Suzie. Remember, "don’t count the days make the days count". Have a great one. Love xx _Gordon, Jo, Isobel & Tom_
+
 Happy birthday Suze. Carry on ignoring your age - you will always be 21 in my eyes (if only because it allows me to keep up the same illusion!). _Steve Parker_
 
 Dear Suzie, happy 50th rotation around the sun! Spending time with you is always lovely, never dull. Your Christmas parties are brilliant - all the best parties are spent in the kitchen! Randomly spending the day together at Legoland - we were more excited than the children! Do you remember about 25 years ago when we wandered around Nonsuch Park in circles looking for the perfect tree lined spot to paint?! Oh and that time we broke down in Putney after going to see Tori Amos?!… Feels like only yesterday! You are a truly wonderful person, Suzie. Kind, creative and inspiring. Your daughters are so lucky that you were the gift they received as a Mum. We wish you a wonderful 50th year filled with health, happiness, love and laughter. Lots of love _Ella, Matt, Stanley and Jack_
@@ -45,6 +47,8 @@ Dear Suzie, happy 50th rotation around the sun! Spending time with you is always
 Suzie you have had a wonderful first 50 years - Oxford, a great career, two girls that adore you, cats that ignore you and a husband who forgets his shoes. Here's to the next 50 years! _Workman family_
 
 Cheers for those lockdown gins and popcorn on the terrace, while the world stood still. One of the better survival strategies! _Erika & Chris_
+
+Wishing you the happiest of birthday celebrations! I’m sure you look fabulous and I’m gutted I can’t be there in person to ask: “Yo Suze, what’ve you done with your hair?” Hope you have the most wonderful garden party. Avi really did have the most cunning of all cunning plans for this, in fact you could say there was a fox pinned right on it, so I think we can call that one a weasel! Looking forward to celebrating with you at our Mad Hatter’s Afternoon Tea in May. We’ll just have to hope Mr Hatter remembers to, “Make a cup of tea, put the kettle on” and we’ll all have a great time! HAPPY 50th xx _Nat_
 
 Suzie, my phirengi sister-in-law. Suzie the wife, is extremely caring and loves my brother to bits. As a daughter-in-law, in one word: dutiful. The mother in Suzie has no bounds, she goes beyond extra length. I know she is also close to her family and relatives, a very family person. I admire her as an individual and also for her baking, crafting and crocheting habits. Suzie, this is truly a milestone birthday. I wish you a very very happy birthday and wish you carry on with your marathons. _Chumkidi_
 
@@ -55,6 +59,8 @@ Always remember skiing with Suzie. So much fun. One night we were recruited by t
 Suzie was top in the whole country for her Business Studies GCSE   and got a special prize. Always proud of you. _Mum_
 
 Do you remember?: Rob, Pete and crew secretly pushed a bag of chips through Lee Chennel’s door (his nickname was Chippy) and the next day you innocently asked him if he enjoyed the chips! _Dave_
+
+Happy Birthday "Our Kid"  Welcome to the 50's club. It's all downhill from here! Love xxx _Rob, Alex, Meg & Sam_
 
 A Roman who lacked some civility, Philosophised with great humility, He said: “What the hell, I’m just turning L, It’s 50 more years to C-nility." _Avi_
 
